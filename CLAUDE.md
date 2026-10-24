@@ -182,9 +182,9 @@ issue 上另有「🤖 完成條件確認（Claude）」留言。
 ## Commits
 範圍：基準 <hash> → 第一個 <hash> → 最後一個 <hash>（比較：https://github.com/17-Tarkov-WYA/tarkov-wya/compare/<基準>...<最後一個>）
 
-| 順序 | commit | 標題 | 為什麼 | 單獨驗證 |
-|---|---|---|---|---|
-| 1 | <hash> | <commit 標題> | <commit 內文「為什麼」的摘要> | ✅ 通過／❌ 失敗 |
+| 順序 | commit | 標題 | 為什麼 |
+|---|---|---|---|
+| 1 | <hash> | <commit 標題> | <commit 內文「為什麼」的摘要> |
 
 排序理由：<為什麼這樣排>
 
@@ -200,7 +200,7 @@ issue 上另有「🤖 完成條件確認（Claude）」留言。
 - <問題；沒有就寫「無」>
 
 ## 分支
-`<分支名稱>`（基準 <hash>，最後 commit：<hash>）
+`<分支名稱>`（最後 commit：<hash>）
 ```
 
 **修改回報**（PR 留言）：
@@ -217,9 +217,9 @@ issue 上另有「🤖 完成條件確認（Claude）」留言。
 ## Commits
 範圍：基準 <hash> → 第一個 <hash> → 最後一個 <hash>（比較：https://github.com/17-Tarkov-WYA/tarkov-wya/compare/<基準>...<最後一個>）
 
-| 順序 | commit | 標題 | 為什麼 | 單獨驗證 |
-|---|---|---|---|---|
-| 1 | <hash> | <commit 標題> | <commit 內文「為什麼」的摘要> | ✅ 通過／❌ 失敗 |
+| 順序 | commit | 標題 | 為什麼 |
+|---|---|---|---|
+| 1 | <hash> | <commit 標題> | <commit 內文「為什麼」的摘要> |
 
 排序理由：<為什麼這樣排>
 
@@ -236,6 +236,8 @@ issue 上另有「🤖 完成條件確認（Claude）」留言。
 
 ```markdown
 🤖 CI 結果（Claude）
+
+最後 commit：<hash>
 
 範圍：基準 <hash> → 第一個 <hash> → 最後一個 <hash>（比較：https://github.com/17-Tarkov-WYA/tarkov-wya/compare/<基準>...<最後一個>）
 
@@ -265,7 +267,7 @@ issue 上另有「🤖 完成條件確認（Claude）」留言。
 ```markdown
 🤖 完成條件確認（Claude）
 
-PR：#<PR 編號>（合併到 `<dev 分支>`）　CI：通過
+PR：#<PR 編號>（合併到 `<dev 分支>`）　最後 commit：<hash>　CI：通過
 
 範圍：基準 <hash> → 第一個 <hash> → 最後一個 <hash>（比較：https://github.com/17-Tarkov-WYA/tarkov-wya/compare/<基準>...<最後一個>）
 

@@ -13,11 +13,11 @@ tools: Read, Glob, Grep, Bash
 | 情況 | 審查的時機 | 要看的變更 |
 |---|---|---|
 | 第一次開發 | commit **之前** | `git diff origin/<目標的 dev 分支>`（工作目錄與 dev 分支的差異），加上 `git status` 列出的未追蹤新檔案 |
-| 退回修改 | 每條意見都已在本機 commit、**push 之前** | 本輪全部的變更：`git diff origin/<子 issue 分支>`；本機的每一個 commit：用 `git log --format=%h origin/<子 issue 分支>..HEAD` 列出，逐一 `git show <hash>`，確認每個 commit 只包含它對應的那一條意見；整體的變更：`git diff origin/<目標的 dev 分支>` |
+| 退回修改 | 每條意見都已在本機 commit、**push 之前** | 本輪全部的變更：`git diff origin/<子 issue 分支>`；本機的每一個 commit：逐一 `git show <hash>`，確認每個 commit 只包含它對應的那一條意見；整體的變更：`git diff origin/<目標的 dev 分支>` |
 
 - 第一次開發不使用 `git diff origin/<目標的 dev 分支>...HEAD`：審查時還沒有 commit，結果會是空的
 - 未追蹤的新檔案不會出現在 `git diff` 中，要直接讀取檔案內容
-- 退回修改時提出「必須修正」，主要的 Claude 會**新增修正 commit**（不改寫既有的 commit），請在意見中寫清楚要修正什麼，讓修正 commit 的「為什麼」可以引用
+- 退回修改時提出「必須修正」，主要的 Claude 會**新增修正 commit**（不改寫既有的 commit）
 
 逐項確認：
 
