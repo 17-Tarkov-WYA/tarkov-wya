@@ -84,7 +84,7 @@ argument-hint: <子 issue 編號>
     - 退回修改（已在本機 commit、還沒 push）：本輪全部的變更 `git diff origin/<子 issue 分支>`；本機的每一個 commit 逐一 `git show <hash>`，確認每個 commit 只包含它對應的那一條意見；整體的變更 `git diff origin/<dev 分支>`
     - 最後一次審查之後新增的 commit（包含逐一驗證失敗後的修正 commit）：只審查新增的 commit，逐一 `git show <hash>`
 
-reviewer 提出「必須修正」時，交回 implementer 修正，再重新經過 tester 與 reviewer，直到沒有必須修正的問題：
+reviewer 提出意見（必須修正 M 或建議 S）時，交回 implementer 修正，再重新經過 tester 與 reviewer，直到沒有必須修正的問題：
 
 - 修正不會產生修正 commit 時（第一次開發 commit 之前的審查）：修正後才進入第 6 步 commit；審查結果摘要寫進開發回報
 - 修正會產生修正 commit 時（已經有 commit 之後的審查，例如退回修改、第一次開發逐一驗證失敗後的重新審查）：先把 reviewer 的審查結果（含 M1、S1… 編號）留言、取得連結——**已經有 PR 時**以「🤖 審查結果（Claude reviewer）」留言到 PR，**還沒有 PR 時**（第一次開發 push 前）留言到子 issue——再修正並**新增修正 commit**，不改寫既有的 commit（不 amend、不 rebase）；「為什麼」寫出「審查留言連結＋編號」，以及它對應的 PR 意見。必須修正（M）一條一個 commit，同一個根本原因造成的多條可以合併，「為什麼」列出所有編號；建議（S）可以合成一個「處理審查建議」的 commit，「為什麼」逐一列出編號
