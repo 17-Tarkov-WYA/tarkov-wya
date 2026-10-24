@@ -138,7 +138,7 @@ Claude 會依序：確認狀態、上層目標、dev 分支與依賴 → 讀取�
 
 之後：
 
-- **需要修改**：在 PR 的 **Conversation** 留言，**逐條寫出要改什麼**（行內留言只當補充，Claude 不一定讀得到）；子 issue 的標籤改成 `status:changes-requested`，再執行 `/develop-issue <編號>`。Claude 會在同一個分支依每條意見分別 commit、push（PR 自動更新），在 PR 留言「🤖 修改回報（Claude）」與新的「🤖 CI 結果（Claude）」，並在子 issue 另留一則新的「🤖 完成條件確認（Claude）」
+- **需要修改**：在 PR 的 **Conversation** 留言，**逐條寫出要改什麼**（行內留言只當補充，Claude 不一定讀得到）；子 issue 的標籤改成 `status:changes-requested`，再執行 `/develop-issue <編號>`。Claude 會在同一個分支依每條意見分別在本機 commit，push 前由 reviewer 審查、tester 逐一驗證每個 commit，再 push（PR 自動更新），在 PR 留言「🤖 修改回報（Claude）」與新的「🤖 CI 結果（Claude）」，並在子 issue 另留一則新的「🤖 完成條件確認（Claude）」
 - **通過**：按 **Create a merge commit** 合併到 dev 分支（保留每個 commit）；工作流程「關閉已合併的子 issue」會自動關閉子 issue；合併後刪除子分支
 - 「🤖 完成條件確認」只代表 Claude 已自行驗證；**你按下合併才是審核結果**
 - **不要了**：自己關閉 PR，並視情況調整子 issue

@@ -1,6 +1,6 @@
 ---
 name: tester
-description: 依照 issue 的完成條件與驗證方式，實際執行 tarkov-wya 的建置、測試與格式檢查並記錄結果。實作完成後使用。
+description: 依照 issue 的完成條件與驗證方式，實際執行 tarkov-wya 的建置、測試與格式檢查並記錄結果。實作完成後使用；commit 之後、push 之前再用來逐一驗證每個 commit。
 tools: Read, Glob, Grep, Bash
 ---
 

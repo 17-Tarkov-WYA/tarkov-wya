@@ -112,15 +112,15 @@ dev 分支合併到 `main` 後**不刪除**：ruleset 禁止刪除 `dev/**`，�
 - 使用者要能從 git 歷史追蹤每一部分改了什麼、為什麼改；依性質拆分後，看 commit 就知道設定、程式、文件各自的變更
 - 壓成一個 commit 的合併方式會把拆好的 commit 合成一個，所以子 issue 也改用 merge commit；`git log --first-parent` 仍能看到一個子 issue 一個合併點，不會失去「一個子 issue 一個單位」的好處
 - 不規定固定順序，由當下判斷最適合的排法；改以「每個 commit 單獨都能通過驗證」確認排出來的順序可行，並以 commit 內文的「順序」與回報中的範圍看出每一輪的頭尾（PR #10 第二輪意見第 3 條 https://github.com/17-Tarkov-WYA/tarkov-wya/pull/10#issuecomment-6384650208 ）。每個 commit 都能單獨通過驗證，之後要找出問題出在哪個 commit 也比較容易
-- 退回修改時，多條意見常常改到同一個檔案；commit 以檔案為單位，又不能用互動式的 `git add -p`，所以「一條意見一個 commit」和「先審查、再 commit」無法同時做到（PR #10 的「🤖 修改回報」 https://github.com/17-Tarkov-WYA/tarkov-wya/pull/10#issuecomment-6384501111 ）。使用者選擇保留一條意見一個 commit，把審查移到 push 之前（PR #10 第二輪意見第 1 條 https://github.com/17-Tarkov-WYA/tarkov-wya/pull/10#issuecomment-6384650208 ）
+- PR #10 第一輪的修改意見中，第 1、2、4 條都改到 `CLAUDE.md` 或 `.claude/commands/develop-issue.md`；commit 以檔案為單位，又不能用互動式的 `git add -p`，所以「一條意見一個 commit」和「先審查、再 commit」無法同時做到（PR #10 的「🤖 修改回報」 https://github.com/17-Tarkov-WYA/tarkov-wya/pull/10#issuecomment-6384501111 ）。使用者選擇保留一條意見一個 commit，把審查移到 push 之前（PR #10 第二輪意見第 1 條 https://github.com/17-Tarkov-WYA/tarkov-wya/pull/10#issuecomment-6384650208 ）
 - CI 通常要幾分鐘，開 PR 後馬上檢查只會看到「執行中」；等結束再回報，使用者看到 `status:review` 時就能直接審核
 - 考慮過讓 Claude 在 issue 內容的完成條件上打勾：使用者寫的原始需求會被修改，也分不出是誰確認的，所以改為另外留言；留言保留每一次的確認紀錄，退回修改後也看得出前後差異
 
 ## 影響
 
 - 決策 [0011](0011-goals-and-status.md) 的「合併方式」被本決策取代，0011 的狀態改為「部分被 0012 取代（合併方式）」
-- `docs/workflow.md`、`docs/claude-code.md`、`CLAUDE.md`、`.claude/commands/develop-issue.md`、`.claude/agents/implementer.md` 依本決策更新
-- 開發回報（PR 內容）加上「## Commits」，逐一列出 commit 的 hash、標題與為什麼
+- `docs/workflow.md`、`docs/claude-code.md`、`CLAUDE.md`、`.claude/commands/develop-issue.md`、`.claude/agents/implementer.md`、`.claude/agents/reviewer.md`、`.claude/agents/tester.md` 依本決策更新
+- 開發回報（PR 內容）與修改回報加上「## Commits」：範圍（附 compare 連結），以及每個 commit 的順序、hash、標題、為什麼，與排序理由
 - implementer 完成時依性質分組回報修改的檔案，主要的 Claude 據此拆 commit
 - `status:review` 改為在 CI 結果與完成條件確認都留言之後才加上
 - `docs/workflow.md`、`docs/claude-code.md` 的「完成目標」移除「刪除 dev 分支」的步驟
