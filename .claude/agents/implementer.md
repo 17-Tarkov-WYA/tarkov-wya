@@ -29,6 +29,7 @@ tools: Read, Write, Edit, Glob, Grep, Bash
     | 設定與建置 | | | |
     | 程式邏輯 | | | |
     | UI | | | |
+    | 驗證實驗 | | | |
     | 測試 | | | |
     | 文件 | | | |
 

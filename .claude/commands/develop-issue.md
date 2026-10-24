@@ -81,7 +81,7 @@ reviewer 提出「必須修正」時，交回 implementer 修正，再重新經�
 規則見 `CLAUDE.md`「分支與 commit」與 `docs/decisions/0012-traceable-development.md`。
 
 1. **先規劃 commit**：依 implementer 依性質分組的回報，決定每個 commit 的性質、類型、包含的檔案與目的
-    - 一個 commit 只包含一種性質：設定與建置（`chore`）、程式邏輯（`feat`／`fix`／`refactor`）、UI（`feat`／`fix`，摘要寫出是 UI）、測試（`test`）、文件（`docs`）
+    - 一個 commit 只包含一種性質：設定與建置（`chore`）、程式邏輯（`feat`／`fix`／`refactor`）、UI（`feat`／`fix`，摘要寫出是 UI）、驗證實驗的程式與紀錄（`exp`）、測試（`test`）、文件（`docs`）
     - 只有一種性質時一個 commit 即可；同一種性質但目的不同時也要拆開
     - 順序依「被依賴的先 commit」：設定 → 程式 → UI → 測試 → 文件
     - 退回修改時：每一條修改意見各自一個（或一組）commit

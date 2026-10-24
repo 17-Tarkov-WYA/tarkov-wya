@@ -69,6 +69,7 @@
     - 設定與建置（專案檔、相依套件、`.editorconfig`、CI、`.gitignore` 等）→ `chore`
     - 程式邏輯 → `feat`／`fix`／`refactor`
     - UI（XAML、版面、UI 文字）→ 依情況用 `feat`／`fix`，摘要中寫出是 UI
+    - 驗證實驗的程式與紀錄 → `exp`
     - 測試 → `test`
     - 文件（README、`docs/`、`CLAUDE.md`、`.claude/` 中的說明）→ `docs`
 - 只有一種性質時一個 commit 即可；同一種性質但目的不同時也要拆開

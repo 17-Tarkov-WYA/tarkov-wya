@@ -176,6 +176,7 @@ main ─────────────────────────
 | 設定與建置 | 專案檔、相依套件、`.editorconfig`、CI、`.gitignore` 等 | `chore` |
 | 程式邏輯 | 程式碼 | `feat`／`fix`／`refactor` |
 | UI | XAML、版面、UI 文字 | 依情況用 `feat`／`fix`，摘要中寫出是 UI |
+| 驗證實驗 | 驗證實驗的程式與紀錄 | `exp` |
 | 測試 | 測試程式與範例資料 | `test` |
 | 文件 | README、`docs/`、`CLAUDE.md`、`.claude/` 中的說明 | `docs` |
 
