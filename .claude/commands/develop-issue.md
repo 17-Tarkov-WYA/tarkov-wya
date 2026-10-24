@@ -70,7 +70,7 @@ argument-hint: <子 issue 編號>
 
 依序交給三個角色，每一步都把 issue 編號、上層目標、dev 分支、完成條件與相關文件交代清楚：
 
-1. **implementer**：實作（退回修改時，只依 PR 上的修改意見修改）
+1. **implementer**：實作（退回修改時，只依 PR 上的修改意見修改）；完成時依內容性質分組回報修改的檔案與理由，第 6 步據此拆分 commit
 2. **tester**：依完成條件與驗證方式實際執行並記錄結果
 3. **reviewer**：審查變更（比較基準是 `origin/<dev 分支>`）
 
@@ -78,30 +78,78 @@ reviewer 提出「必須修正」時，交回 implementer 修正，再重新經�
 
 ## 6. commit 與 push
 
-- 依 `docs/workflow.md` 的格式 commit，結尾引用 `(#$ARGUMENTS)`
-- push 自己的分支：`git push -u origin <分支名稱>`
+規則見 `CLAUDE.md`「分支與 commit」與 `docs/decisions/0012-traceable-development.md`。
+
+1. **先規劃 commit**：依 implementer 依性質分組的回報，決定每個 commit 的性質、類型、包含的檔案與目的
+    - 一個 commit 只包含一種性質：設定與建置（`chore`）、程式邏輯（`feat`／`fix`／`refactor`）、UI（`feat`／`fix`，摘要寫出是 UI）、測試（`test`）、文件（`docs`）
+    - 只有一種性質時一個 commit 即可；同一種性質但目的不同時也要拆開
+    - 順序依「被依賴的先 commit」：設定 → 程式 → UI → 測試 → 文件
+    - 退回修改時：每一條修改意見各自一個（或一組）commit
+2. **分批 commit**：每個 commit 的訊息先存成暫存檔，標題結尾引用 `(#$ARGUMENTS)`，**內文必填**「改了什麼」「為什麼」
+
+    ```
+    git add <這個 commit 的檔案>
+    git commit -F <暫存檔>
+    ```
+
+    不用 `git add -A` 或 `git add .`
+3. 確認：`git status` 沒有遺漏的檔案；`git log --format="%h %s" origin/<dev 分支>..HEAD` 的順序與規劃相同
+4. 把 commit 規劃（hash、標題、為什麼）寫進開發回報的「## Commits」；退回修改時寫進修改回報的「改了什麼」
+5. push 自己的分支：`git push -u origin <分支名稱>`
+- **不**改寫已 push 的 commit（不 amend、不 rebase、不 force push）
 - **不** push 到 `main` 或任何 `dev/*` 分支、**不** merge、**不**關閉 issue
 
 ## 7. 開 PR 與回報
 
-依 `CLAUDE.md` 的「回報與 PR」撰寫，內容存成暫存檔：
+依 `CLAUDE.md` 的「回報與 PR」撰寫，內容都存成暫存檔。**依序**進行，前一步沒完成不進行下一步：
 
-- **第一次完成**：開 PR **到 dev 分支**，內容為「開發回報」（第一行 `Closes #$ARGUMENTS`）
+1. **開 PR 或回報修改**
+
+    - **第一次完成**：開 PR **到 dev 分支**，內容為「開發回報」（第一行 `Closes #$ARGUMENTS`，含「## Commits」；「## 驗證」的 CI 一列寫「見 PR 留言『🤖 CI 結果』」，不寫「之後另外留言」）
+
+        ```
+        gh pr create --repo <repo> --base <dev 分支> --head <分支名稱> --title "<commit 格式的標題>" --body-file <暫存檔>
+        ```
+
+        開完後用 `gh pr view <PR 編號> --repo <repo> --json baseRefName` 確認目標分支是 `<dev 分支>`，**不是 `main`**
+
+    - **退回修改後完成**：push 後 PR 會自動更新；在 PR 留言「修改回報」
+
+        ```
+        gh pr comment <PR 編號> --repo <repo> --body-file <暫存檔>
+        ```
+
+2. **等 CI 結束**
 
     ```
-    gh pr create --repo <repo> --base <dev 分支> --head <分支名稱> --title "<commit 格式的標題>" --body-file <暫存檔>
+    gh pr checks <PR 編號> --repo <repo> --watch
     ```
 
-    開完後用 `gh pr view <PR 編號> --repo <repo> --json baseRefName` 確認目標分支是 `<dev 分支>`，**不是 `main`**
+    - 剛開 PR 或剛 push 時，檢查可能還沒出現（顯示沒有檢查）：稍等後再執行一次
+    - **失敗**：在 PR 留言「🤖 CI 結果（Claude）」，寫出失敗原因與修正方式；修正（依第 5 步交回 implementer，再經過 tester 與 reviewer）、依第 6 步 commit 並 push，再回到這一步重新等待
+    - **無法修正**（需要使用者決定、資訊不足）：在 PR 留言「🤖 CI 結果（Claude）」說明原因，在子 issue 留言並改為 `status:blocked`，然後停止。子 issue 的留言要註明「已有 PR，處理後請改為 `status:changes-requested`」（沿用既有分支與 PR，不要改回 `status:ready`）
+    - **全部通過**才進行下一步
 
-- **退回修改後完成**：push 後 PR 會自動更新；在 PR 留言「修改回報」
+3. **留言 CI 結果**：在 PR 留言「🤖 CI 結果（Claude）」，列出每項檢查與結果（格式見 `CLAUDE.md`）
 
     ```
     gh pr comment <PR 編號> --repo <repo> --body-file <暫存檔>
     ```
 
-- 確認 CI：`gh pr checks <PR 編號> --repo <repo>`；失敗時修正後再 push，並在回報中說明
-- 更新 issue 狀態：`gh issue edit $ARGUMENTS --repo <repo> --add-label status:review --remove-label status:in-progress`
+4. **留言完成條件確認**：在子 issue 留言「🤖 完成條件確認（Claude）」（格式見 `CLAUDE.md`）
+
+    ```
+    gh issue comment $ARGUMENTS --repo <repo> --body-file <暫存檔>
+    ```
+
+    - 逐條**原文引用**子 issue「完成條件」的每一項，順序與原文相同，不可省略、改寫或合併；標示 ✅ 已完成／❌ 未完成／👤 需要使用者確認，並寫出如何確認
+    - 退回修改後完成時，**另外再留一則新的**，不編輯舊留言
+    - **不修改 issue 內容**，不修改目標 issue，也不在目標 issue 留言
+
+5. **更新 issue 狀態**（CI 結果與完成條件確認都留言之後）：`gh issue edit $ARGUMENTS --repo <repo> --add-label status:review --remove-label status:in-progress`
+
+其他：
+
 - **無法完成**（需要使用者決定、資訊不足）：不開 PR；在子 issue 留言說明原因，改為 `status:blocked`
 - **絕對不合併、關閉或核准 PR**
-- 在對話中顯示同樣的回報，並告訴使用者 PR 連結、目標分支與目前的狀態標籤
+- 在對話中顯示同樣的回報，並告訴使用者 PR 連結、目標分支、CI 結果與目前的狀態標籤
