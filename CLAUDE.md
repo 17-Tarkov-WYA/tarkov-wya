@@ -65,27 +65,38 @@
 - **commit 標題**：`<類型>(<範圍>): <繁體中文摘要> (#<issue 編號>)`，例如 `chore(repo): 建立 planner 空白專案 (#2)`
 - 類型：`feat`、`fix`、`exp`、`chore`、`refactor`、`docs`、`test`
 - 範圍：`planner`、`client`、`map`、`server`、`protocol`、`game-data`、`repo`、`docs`
-- **commit 依內容性質拆分**（[`docs/decisions/0012`](docs/decisions/0012-traceable-development.md)），一個 commit 只包含一種：
-    - 設定與建置（專案檔、相依套件、`.editorconfig`、CI、`.gitignore` 等）→ `chore`
-    - 程式邏輯 → `feat`／`fix`／`refactor`
-    - UI（XAML、版面、UI 文字）→ 依情況用 `feat`／`fix`，摘要中寫出是 UI
-    - 驗證實驗的程式與紀錄 → `exp`
-    - 測試 → `test`
-    - 文件（README、`docs/`、`CLAUDE.md`、`.claude/` 中的說明）→ `docs`
-- 只有一種性質時一個 commit 即可；同一種性質但目的不同時也要拆開
-- **不規定先後順序**：上面只說明有哪些性質，順序依當下最適合的方式決定，但必須做到（[`docs/decisions/0012`](docs/decisions/0012-traceable-development.md)）：
-    - **每個 commit 單獨都能通過驗證**：commit 之後，tester 逐一切到每個 commit（`git switch --detach <hash>`），執行格式檢查與受影響範圍的建置、測試並記錄結果，完成後切回子 issue 分支。第一次開發是「審查 → commit → 逐一驗證」；退回修改是「commit → 審查 → 逐一驗證」；有 commit 沒通過就加修正 commit，不改寫
-        - 失敗的 commit，以及它之後、修正之前因同一個原因失敗的 commit，在「## Commits」的「單獨驗證」欄標示「❌（由 <修正 commit> 修正）」
-        - tester 重新驗證時，只驗證上次驗證之後新增的 commit，並確認最後一個 commit 通過；已標示 ❌ 且有修正 commit 的，不再阻擋整輪
+- **commit 的拆分：每個 commit 都要有針對性**（[`docs/decisions/0012`](docs/decisions/0012-traceable-development.md)；這是判斷的框架，不是固定分類）：
+    - 每個 commit 都應有一個明確的目的：只看該 commit 的變更與訊息，就能說明它做了什麼、為什麼做
+    - 不要將所有修改一股腦塞進同一個大雜燴 commit，也不要為了拆分而拆分，導致相關變更失去整體意義
+    - 類別相似、性質相同的變更可以聚合在同一個 commit；多條同類別的意見可以合併處理，「為什麼」完整列出每一條對應的來源
+    - 一條意見若涉及不同目的或性質的變更（例如同時涉及 UI 與 CI），可以依實際情況拆分為多個 commit
+    - 不要求一條意見對應一個 commit，也不要求每個 commit 僅對應一條意見
+    - 常見的分組方式（參考框架，不是必須遵守的一對一分類）：設定與建置（專案檔、相依套件、`.editorconfig`、CI、`.gitignore` 等）→ `chore`；程式邏輯 → `feat`／`fix`／`refactor`；UI（XAML、版面、UI 文字）→ 依情況用 `feat`／`fix`，摘要中寫出是 UI；驗證實驗的程式與紀錄 → `exp`；測試 → `test`；文件（README、`docs/`、`CLAUDE.md`、`.claude/` 中的說明）→ `docs`
+- **commit 規劃**：你依當次變更內容決定分組，在 reviewer 審查前提出完整的 commit 規劃。每個預計建立的 commit 列出：目的／標題、包含的檔案、分組理由（為什麼放在一起，必要時為什麼與其他變更拆開）、「為什麼」的來源、擬好的 commit 訊息
+    - 執行環境不支援 `git add -p`：同一次從工作目錄拆分建立 commit 時，以檔案為最小分組單位，同一個檔案不得分配給不同 commit（因逐一驗證失敗而新增修正 commit 時，不在此限）；規劃時考慮檔案間的依賴關係，避免產生無法獨立理解或驗證的分組
+    - commit 規劃是依實際變更提出的方案，不是固定藍圖；reviewer 可以要求調整分組、合併或拆分
+- **不規定先後順序**：順序依當下最適合的方式決定，但必須做到（[`docs/decisions/0012`](docs/decisions/0012-traceable-development.md)）：
+    - **每個 commit 單獨都能通過驗證**：建立 commit 之後，tester 逐一切到每個 commit（`git switch --detach <hash>`），執行格式檢查與受影響範圍的建置、測試並記錄結果，完成後切回子 issue 分支；失敗時見下方「逐一驗證失敗」
     - **排序有理由**：commit 規劃寫出順序與為什麼這樣排，寫進開發回報的「## Commits」（退回修改寫進修改回報）
     - **看得出頭尾**：每個 commit 內文加一行「順序：本輪第 k 個，基準 <hash>」。**每一次 push 就是一輪**：分支還沒 push 過時，基準是開分支時 dev 分支的 commit；之後的每一次 push（包含退回修改、CI 失敗後的修正），基準一律是 push 之前的 `origin/<子 issue 分支>`。回報與留言寫出範圍與 compare 連結（格式見「回報與 PR」）。commit 內文寫不了尾，尾以回報與留言為準
-- commit 前先規劃每個 commit 包含哪些檔案與目的，再用 `git add <檔案>` 分批 commit；不用 `git add -A` 或 `git add .`
-- 退回修改時，每一條修改意見各自一個（或一組）commit，「為什麼」寫出對應的意見；不改寫已 push 的 commit
-- **審查的時機**（[`docs/decisions/0012`](docs/decisions/0012-traceable-development.md)）：
-    - 第一次開發：先審查、再 commit
-    - 退回修改：每條意見改完就在本機 commit，全部改完、**push 之前**再交給 reviewer；reviewer 提出必須修正時，**新增修正 commit**（不 amend、不 rebase），「為什麼」寫出 reviewer 的哪一條意見，以及它對應的 PR 意見
-    - push 前，最後一次審查之後新增的 commit（包含逐一驗證失敗後的修正 commit），都要再交給 reviewer，只審查新增的 commit
-    - reviewer 意見的 commit 拆分：必須修正（M）一條一個 commit，同一個根本原因造成的多條可以合併，「為什麼」列出所有編號；建議（S）可以合成一個「處理審查建議」的 commit，「為什麼」逐一列出編號
+- 依 commit 規劃用 `git add <檔案>` 分批 commit；不用 `git add -A` 或 `git add .`
+- 已建立的 commit 不改寫（不 `git commit --amend`、不 `git rebase`）
+- **先審查、再 commit**（[`docs/decisions/0012`](docs/decisions/0012-traceable-development.md)）：第一次開發、退回修改、CI 失敗後的修正，都是同一個流程：
+
+    實作 → tester 驗證工作目錄整體變更 → reviewer 審查工作目錄變更與 commit 規劃 → 依審查意見修正 → 審查通過後依規劃建立 commit → tester 逐一驗證每個 commit → push
+
+    - 審查前不得先為預計提交的變更建立 commit；審查通過後，才執行 `git commit`
+    - 審查後的修正直接併入工作目錄中相關的變更，並同步更新 commit 規劃，不另外為審查意見建立修正 commit
+    - 若有 M，修正後須再次交由 reviewer 審查；確認通過後才能依最終規劃建立 commit
+- **逐一驗證失敗**：tester 逐一驗證某個 commit 失敗時：
+    1. 留言記錄 tester 的驗證結果及失敗依據（已有 PR 留言到 PR，尚無 PR 留言到子 issue）
+    2. 在工作目錄進行修正，並擬定修正 commit 規劃（修正 commit 的「為什麼」引用 tester 驗證結果的留言連結與編號，並保留其他必要的可查證來源）
+    3. reviewer 只針對該修正內容與修正 commit 規劃進行增量審查（若有 M，依「Agent team」的「審查與驗證結果的紀錄」留言並修正）
+    4. 審查通過後，新增修正 commit，不修改原本已建立的 commit
+    5. tester 驗證新增的修正 commit，並確認最後一個 commit 通過；已標示失敗並由後續 commit 修正的歷史 commit，不阻擋通過
+    6. 完成驗證後才 push
+
+    「## Commits」中，原本驗證失敗的 commit（以及它之後、修正之前因同一個原因失敗的 commit）標示「❌（由 <修正 commit> 修正）」。修正 commit 也遵守「每個 commit 都要有針對性」，不恢復成「一條意見一個 commit」
 - **commit 內文必填**（內容先存成暫存檔，再用 `git commit -F <暫存檔>`）：
 
     ```
@@ -148,16 +159,20 @@
 | `tester` | 依完成條件與驗證方式實際執行並記錄結果；commit 之後逐一驗證每個 commit | 否 |
 | `reviewer` | 對照 issue、本檔案、開發風格與決策紀錄審查變更 | 否 |
 
-reviewer 提出「必須修正」時，交回 implementer，直到沒有必須修正的問題。第一次開發時，reviewer 審查還沒 commit 的變更；退回修改時，reviewer 在 push 前審查已在本機 commit 的變更；最後一次審查之後新增的 commit（包含逐一驗證失敗後的修正 commit）也要再交給 reviewer，只審查新增的 commit（見「分支與 commit」的「審查的時機」）。
+reviewer 審查工作目錄的變更與 commit 規劃（見「分支與 commit」的「先審查、再 commit」），提出 M 時交回 implementer 修正，再次審查，直到沒有 M。逐一驗證失敗後的修正，reviewer 只做增量審查。
 
-reviewer 要逐個 commit 確認：diff 中的**每一處**變更，都能對應到這個 commit「為什麼」引用的來源。找不到依據的變更一律列為「必須修正」（移除，或列入「需要使用者決定的事」）。reviewer 回報中的每一個判斷都要附上依據（檔案:行號、來源原文）；無法從 5 類來源（見「分支與 commit」）確認的事，寫「無依據」並列入「需要使用者決定的事」。
+reviewer 要確認：每一處變更都能對應到 commit 規劃中該 commit「為什麼」引用的來源。找不到依據的變更一律列為「必須修正」（移除，或列入「需要使用者決定的事」）。reviewer 回報中的每一個判斷都要附上依據（檔案:行號、來源原文）；無法從 5 類來源（見「分支與 commit」）確認的事，寫「無依據」並列入「需要使用者決定的事」。
+
+reviewer 評估 commit 規劃的重點：針對性、分組合理性、聚合與拆分、來源完整性、可執行性（以檔案為最小單位、檔案間的依賴）、訊息完整性；不得要求每條意見各自建立 commit，也不得僅以性質分類不同或目的不完全相同為由，直接要求拆分（詳見 [`.claude/agents/reviewer.md`](.claude/agents/reviewer.md)）。
 
 **審查與驗證結果的紀錄**（[`docs/decisions/0012`](docs/decisions/0012-traceable-development.md)）：
 
-- reviewer、tester 維持唯讀，不執行任何寫入 GitHub 的指令，也嚴禁使用 `gh api`；需要留存結果時，一律由你發布留言
+- reviewer、tester 維持唯讀，不執行任何寫入 GitHub 的指令，也嚴禁使用 `gh api`；留言一律由你發布
 - reviewer 的每條意見加上編號：必須修正 M1、M2…，建議 S1、S2…；編號只在同一則審查留言內有效，引用時寫「留言連結＋編號」
-- 結果需要被 commit 引用時（會產生修正 commit），先發布留言、取得連結，再建立修正 commit：已經有 PR 時留言到 PR，還沒有 PR 時（第一次開發 push 前）留言到子 issue（格式見「回報與 PR」）
-- 不需要被引用的審查結果，摘要寫進開發回報或修改回報
+- 只要 reviewer 提出 M，就留下審查結果紀錄（已有 PR 留言到 PR，尚無 PR 留言到子 issue），保留 reviewer 發現的問題、依據與 M／S 編號
+- 修正併入原規劃的 commit 時，該 commit 的「為什麼」引用相關審查留言的連結與編號，並保留原本必要的來源依據
+- 沒有 M 的審查結果，摘要寫進開發回報或修改回報
+- 留言標題及格式依當次情境決定；子 issue 上的格式與 PR 上保持一致即可，不另訂固定標題
 
 ## 驗證方式
 
@@ -212,7 +227,7 @@ issue 上另有「🤖 完成條件確認（Claude）」留言。
 ## 驗證
 | 項目 | 指令 | 結果 |
 |---|---|---|
-| 審查 | reviewer | <審查結果摘要；有「🤖 審查結果」留言時附連結> |
+| 審查 | reviewer | <審查結果摘要；有審查結果留言時附連結> |
 | CI | `gh pr checks --watch` | 見 PR 留言「🤖 CI 結果」 |
 
 ## 偏離或未完成
@@ -248,7 +263,7 @@ issue 上另有「🤖 完成條件確認（Claude）」留言。
 ## 驗證
 | 項目 | 指令 | 結果 |
 |---|---|---|
-| 審查 | reviewer | <審查結果摘要；有「🤖 審查結果」留言時附連結> |
+| 審查 | reviewer | <審查結果摘要；有審查結果留言時附連結> |
 | CI | `gh pr checks --watch` | 見 PR 留言「🤖 CI 結果」 |
 
 ## 仍未處理
@@ -271,35 +286,15 @@ issue 上另有「🤖 完成條件確認（Claude）」留言。
 <失敗時：失敗原因與修正方式；通過時省略>
 ```
 
-- 失敗時：留言失敗原因與修正方式，修正（同樣經過 implementer、tester、reviewer）、commit、push 後重新等待，再留一則新的結果
+- 失敗時：留言失敗原因與修正方式；修正依「分支與 commit」的「先審查、再 commit」進行（這是新的一輪），push 後重新等待，再留一則新的結果
 - 無法修正時（需要使用者決定、資訊不足）：在 PR 留言「🤖 CI 結果（Claude）」說明原因，在子 issue 留言並改為 `status:blocked`；子 issue 的留言要註明「已有 PR，處理後請改為 `status:changes-requested`」（沿用既有分支與 PR，不要改回 `status:ready`）
 - 全部通過後才進行下一步，所以「完成條件確認」中的 CI 一律是「通過」
 
-**審查結果、逐一驗證結果**（PR 與子 issue 的留言都使用以下格式；標題「🤖 審查結果（Claude reviewer）」「🤖 逐一驗證結果（Claude tester）」只在留言到 PR 時使用，子 issue 留言的標題尚未規定；只在結果需要被修正 commit 引用時發布，照 reviewer／tester 回報的內容）：
+**審查結果、逐一驗證結果**（留言時機見「Agent team」的「審查與驗證結果的紀錄」與「分支與 commit」的「逐一驗證失敗」）：
 
-```markdown
-🤖 審查結果（Claude reviewer）
-
-## 必須修正
-- M1：<問題>（<檔案:行號>；依據：<來源原文>）
-
-## 建議
-- S1：<建議>
-
-## 需要使用者決定的事
-- <問題；沒有就寫「無」>
-
-結論：<可以交給使用者審核／需要修正後再審>
-```
-
-```markdown
-🤖 逐一驗證結果（Claude tester）
-
-| 順序 | commit | 格式 | 建置與測試 | 結果 |
-|---|---|---|---|---|
-
-<失敗時：失敗原因與錯誤訊息>
-```
+- 標題及格式依當次情境決定；子 issue 上的格式與 PR 上保持一致即可，不另訂固定標題
+- 審查結果要保留 reviewer 發現的問題、依據與 M／S 編號
+- 逐一驗證結果要保留 tester 的驗證結果及失敗依據
 
 **完成條件確認**（子 issue 留言）：
 
