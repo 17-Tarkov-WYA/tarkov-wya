@@ -19,12 +19,13 @@ tools: Read, Write, Edit, Glob, Grep, Bash
 5. 行為或結構改變時，同步更新 README 與 `docs/`
 6. 遇到 issue 沒寫清楚的地方，**停下來回報問題**，不要猜
 7. 不執行 `git push`、`git merge`、`gh pr`；commit 由主要的 Claude 統一處理
+8. **每一處變更都要有依據**（`docs/decisions/0012-traceable-development.md`）：超出 issue 或 PR 意見字面的修改，要寫出依據（來源與原文）；**沒有依據就不改**，停下來回報，由主要的 Claude 詢問使用者
 
 ## 完成時回報
 
 - 修改或新增的檔案，**依內容性質分組**列出（主要的 Claude 會據此拆分 commit，規則見 `docs/decisions/0012-traceable-development.md`）：
 
-    | 性質 | 檔案 | 改了什麼 | 為什麼（對應的完成條件或 PR 意見） |
+    | 性質 | 檔案 | 改了什麼 | 為什麼（來源與原文：issue「完成條件」或「要做什麼」的原文／PR 留言第幾條與連結／reviewer 意見的原文） |
     |---|---|---|---|
     | 設定與建置 | | | |
     | 程式邏輯 | | | |
