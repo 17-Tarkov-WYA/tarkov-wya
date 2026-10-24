@@ -76,7 +76,7 @@
 - **不規定先後順序**：上面只說明有哪些性質，順序依當下最適合的方式決定，但必須做到（[`docs/decisions/0012`](docs/decisions/0012-traceable-development.md)）：
     - **每個 commit 單獨都能通過驗證**：commit 之後，tester 逐一切到每個 commit（`git switch --detach <hash>`），執行格式檢查與受影響範圍的建置、測試並記錄結果，完成後切回子 issue 分支。第一次開發是「審查 → commit → 逐一驗證」；退回修改是「commit → 審查 → 逐一驗證」；有 commit 沒通過就加修正 commit，不改寫
     - **排序有理由**：commit 規劃寫出順序與為什麼這樣排，寫進開發回報的「## Commits」（退回修改寫進修改回報）
-    - **看得出頭尾**：每個 commit 內文加一行「順序：本輪第 k 個，基準 <hash>」（第一次開發的基準是開分支時 dev 分支的 commit；退回修改的基準是 PR 上最後一次 push 的 commit）；回報與留言寫出範圍與 compare 連結（格式見「回報與 PR」）。commit 內文寫不了尾，尾以回報與留言為準
+    - **看得出頭尾**：每個 commit 內文加一行「順序：本輪第 k 個，基準 <hash>」。**每一次 push 就是一輪**：分支還沒 push 過時，基準是開分支時 dev 分支的 commit；之後的每一次 push（包含退回修改、CI 失敗後的修正），基準一律是 push 之前的 `origin/<子 issue 分支>`。回報與留言寫出範圍與 compare 連結（格式見「回報與 PR」）。commit 內文寫不了尾，尾以回報與留言為準
 - commit 前先規劃每個 commit 包含哪些檔案與目的，再用 `git add <檔案>` 分批 commit；不用 `git add -A` 或 `git add .`
 - 退回修改時，每一條修改意見各自一個（或一組）commit，「為什麼」寫出對應的意見；不改寫已 push 的 commit
 - **審查的時機**（[`docs/decisions/0012`](docs/decisions/0012-traceable-development.md)）：

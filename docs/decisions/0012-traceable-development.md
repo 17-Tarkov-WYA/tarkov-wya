@@ -32,7 +32,8 @@
     - **每個 commit 單獨都能通過驗證**：commit 之後，tester 逐一切到每個 commit（`git switch --detach <hash>`），執行格式檢查與受影響範圍的建置、測試，記錄每個 commit 的結果，完成後切回子 issue 分支。第一次開發是「審查 → commit → 逐一驗證」；退回修改是「commit → 審查 → 逐一驗證」；有 commit 沒通過就加修正 commit，不改寫
     - **排序有理由**：commit 規劃寫出順序與為什麼這樣排，寫進開發回報的「## Commits」（退回修改寫進修改回報）
     - **看得出頭尾**：
-        - 每個 commit 內文加一行「順序：本輪第 k 個，基準 <hash>」。第一次開發的基準是開分支時 dev 分支的 commit；退回修改的基準是 PR 上最後一次 push 的 commit
+        - 每個 commit 內文加一行「順序：本輪第 k 個，基準 <hash>」
+        - **每一次 push 就是一輪**。分支還沒 push 過時，基準是開分支時 dev 分支的 commit；之後的每一次 push（包含退回修改、CI 失敗後的修正），基準一律是 push 之前的 `origin/<子 issue 分支>`
         - 開發回報、修改回報、CI 結果、完成條件確認都寫出範圍「基準 <hash> → 第一個 <hash> → 最後一個 <hash>」，並附 compare 連結 https://github.com/17-Tarkov-WYA/tarkov-wya/compare/<基準>...<最後一個>
         - commit 內文寫不了尾（寫的時候後面的 commit 還不存在，也不能改寫），尾以回報與留言為準
 
