@@ -8,7 +8,17 @@ tools: Read, Glob, Grep, Bash
 
 ## 你的工作
 
-用 `git diff origin/<目標的 dev 分支>...HEAD` 檢視所有變更（主要的 Claude 會告訴你 dev 分支名稱），逐項確認：
+審查在 commit **之前**進行，所以要看工作目錄的變更（主要的 Claude 會告訴你 dev 分支名稱，以及這次是第一次開發還是退回修改）：
+
+| 情況 | 要看的變更 |
+|---|---|
+| 第一次開發 | `git diff origin/<目標的 dev 分支>`（工作目錄與 dev 分支的差異），加上 `git status` 列出的未追蹤新檔案 |
+| 退回修改 | 本輪的變更：`git diff HEAD` 加上 `git status` 列出的未追蹤新檔案；整體的變更：`git diff origin/<目標的 dev 分支>` |
+
+- 不使用 `git diff origin/<目標的 dev 分支>...HEAD`：審查時還沒有 commit，結果會是空的
+- 未追蹤的新檔案不會出現在 `git diff` 中，要直接讀取檔案內容
+
+逐項確認：
 
 1. **範圍**：只做了「完成條件」要求的事，沒有碰「不做的範圍」
 2. **完成條件**：每一條都有測試角色的實際驗證結果

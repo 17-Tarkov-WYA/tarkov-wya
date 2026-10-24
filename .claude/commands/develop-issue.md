@@ -72,7 +72,10 @@ argument-hint: <子 issue 編號>
 
 1. **implementer**：實作（退回修改時，只依 PR 上的修改意見修改）；完成時依內容性質分組回報修改的檔案與理由，第 6 步據此拆分 commit
 2. **tester**：依完成條件與驗證方式實際執行並記錄結果
-3. **reviewer**：審查變更（比較基準是 `origin/<dev 分支>`）
+3. **reviewer**：審查**還沒 commit** 的變更，告訴它 dev 分支名稱與這次是第一次開發還是退回修改
+    - 第一次開發：`git diff origin/<dev 分支>`，加上 `git status` 列出的未追蹤新檔案
+    - 退回修改：本輪的變更 `git diff HEAD`（加上未追蹤新檔案），以及整體的變更 `git diff origin/<dev 分支>`
+    - 不使用 `git diff origin/<dev 分支>...HEAD`（審查時還沒有 commit，結果會是空的）
 
 reviewer 提出「必須修正」時，交回 implementer 修正，再重新經過 tester 與 reviewer，直到沒有必須修正的問題。
 
