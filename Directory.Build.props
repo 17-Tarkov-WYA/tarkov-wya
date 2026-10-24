@@ -1,0 +1,12 @@
+<Project>
+
+  <!-- 所有 C# 專案共用的設定 -->
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- 建置時檢查 .editorconfig 的程式風格規則，違反時依 TreatWarningsAsErrors 視為錯誤 -->
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/apps/">
+    <Project Path="apps/client/TarkovWYA.Client.csproj" />
+    <Project Path="apps/planner/TarkovWYA.Planner.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/TarkovWYA.Client.Tests/TarkovWYA.Client.Tests.csproj" />
+    <Project Path="tests/TarkovWYA.Planner.Tests/TarkovWYA.Planner.Tests.csproj" />
+  </Folder>
+</Solution>

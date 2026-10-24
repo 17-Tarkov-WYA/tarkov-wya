@@ -7,7 +7,7 @@
 
 你電腦上的本機中樞：在玩家的 Windows 電腦上常駐執行，負責收集資料並提供給 [planner](../planner)（之後也會提供給 map 與 server）。
 
-> 目前只有設計，尚未建立程式。整體設計見 [`docs/architecture.md`](../../docs/architecture.md)。
+> 目前只有空白的主控台程式，尚無任何功能。整體設計見 [`docs/architecture.md`](../../docs/architecture.md)。
 
 ## 規劃功能 (Features)
 
@@ -29,6 +29,21 @@
 
 ## 如何開始 (How to start)
 
-需求（預定）：Windows 10／11、[.NET SDK 10](https://dotnet.microsoft.com/download)
+需求：Windows 10／11、[.NET SDK 10](https://dotnet.microsoft.com/download)
 
-尚未建立程式，執行方式會在建立骨架後補上。
+在 repo 根目錄執行：
+
+```powershell
+# 啟動 client，主控台會印出「Tarkov-WYA Client 已啟動。」
+dotnet run --project apps/client
+
+# 執行 client 的測試
+dotnet test tests/TarkovWYA.Client.Tests
+```
+
+| 路徑 | 說明 |
+|---|---|
+| `TarkovWYA.Client.csproj` | 主控台專案（`net10.0`） |
+| `Program.cs` | 程式進入點 |
+| `StartupMessage.cs` | 啟動時印出的訊息 |
+| [`../../tests/TarkovWYA.Client.Tests`](../../tests/TarkovWYA.Client.Tests) | xUnit 測試專案 |

@@ -43,12 +43,30 @@ Tarkov-WYA 的主程式庫：從「你」出發，即時掌握你在《逃離塔
 
 ## 如何開始 (How to start)
 
-> 目前只有說明與設計文件，尚無可執行的程式。
+> 目前只有 planner 與 client 的空白專案，尚無任何功能。
 
-預定的開發環境：
+開發環境：
 
-- Windows 10／11
-- [.NET SDK 10](https://dotnet.microsoft.com/download)
+- Windows 10／11（planner 是 WPF 程式，只能在 Windows 上建置）
+- [.NET SDK 10](https://dotnet.microsoft.com/download)：版本由根目錄的 [`global.json`](global.json) 指定
+
+在 repo 根目錄執行：
+
+```powershell
+# 建置所有專案（Release 設定下 0 個警告才算通過）
+dotnet build TarkovWYA.slnx -c Release
+
+# 執行所有測試
+dotnet test TarkovWYA.slnx
+
+# 啟動 client（主控台會印出一行繁體中文訊息）
+dotnet run --project apps/client
+
+# 啟動 planner（開啟空白視窗）
+dotnet run --project apps/planner
+```
+
+所有 C# 專案共用的設定寫在 [`Directory.Build.props`](Directory.Build.props)：警告一律視為錯誤，建置時也會檢查 [`.editorconfig`](.editorconfig) 的程式風格，違反規則就會建置失敗。
 
 建議閱讀順序：
 
