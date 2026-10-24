@@ -76,6 +76,16 @@
     - 整體的變更：`git diff origin/<dev 分支>`
 - reviewer 提出必須修正時，**新增修正 commit**，不改寫既有的 commit（不 amend、不 rebase）；「為什麼」寫出 reviewer 的哪一條意見，以及它對應的 PR 意見
 
+### 審查與驗證結果要留下可以點開的紀錄
+
+- reviewer、tester 維持唯讀，不執行任何寫入 GitHub 的指令；需要留存結果時，一律由主要的 Claude 發布留言
+- reviewer 的每條意見加上編號：必須修正 M1、M2…，建議 S1、S2…；編號只在同一則審查留言內有效，引用時寫「留言連結＋編號」
+- 結果需要被 commit 引用時（會產生修正 commit），先發布留言、取得連結，再建立修正 commit：
+    - 已經有 PR（退回修改、CI 失敗後）：留言到 PR，標題為「🤖 審查結果（Claude reviewer）」或「🤖 逐一驗證結果（Claude tester）」
+    - 還沒有 PR（第一次開發 push 前）：留言到子 issue
+- 不需要被引用的審查結果，摘要寫進開發回報或修改回報
+- reviewer、tester 嚴禁使用 `gh api`；查看 PR、issue 或留言一律用 `gh pr view`（例如 `gh pr view --comments`）、`gh issue view`
+
 ### 所有 PR 一律 Create a merge commit
 
 子 issue 分支 → dev 分支、dev 分支 → `main`，都用 **Create a merge commit** 合併。

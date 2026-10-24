@@ -85,8 +85,9 @@ argument-hint: <子 issue 編號>
 
 reviewer 提出「必須修正」時，交回 implementer 修正，再重新經過 tester 與 reviewer，直到沒有必須修正的問題：
 
-- 第一次開發：修正後才進入第 6 步 commit
-- 退回修改：修正後**新增修正 commit**，不改寫既有的 commit（不 amend、不 rebase）；「為什麼」寫出 reviewer 的哪一條意見，以及它對應的 PR 意見
+- 第一次開發：修正後才進入第 6 步 commit；審查結果摘要寫進開發回報
+- 退回修改：先把 reviewer 的審查結果（含 M1、S1… 編號）以「🤖 審查結果（Claude reviewer）」留言到 PR、取得連結，再修正並**新增修正 commit**，不改寫既有的 commit（不 amend、不 rebase）；「為什麼」寫出「審查留言連結＋編號」，以及它對應的 PR 意見
+- reviewer、tester 是唯讀的，留言一律由你發布（`CLAUDE.md`「Agent team」的「審查與驗證結果的紀錄」）
 
 ## 6. commit 與 push
 
@@ -107,7 +108,7 @@ reviewer 提出「必須修正」時，交回 implementer 修正，再重新經�
 
     不用 `git add -A` 或 `git add .`
 3. 確認：`git status` 沒有遺漏的檔案；`git log --format="%h %s" origin/<dev 分支>..HEAD` 的順序與規劃相同
-4. **逐一驗證每個 commit**（tester；第一次開發在 commit 之後，退回修改在 reviewer 審查之後）：tester 用 `git switch --detach <hash>` 逐一切到本輪的每個 commit，執行格式檢查與受影響範圍的建置、測試，記錄每個 commit 的結果，完成後 `git switch <分支名稱>` 切回。有 commit 沒通過時，交回 implementer 修正並**新增修正 commit**（不改寫），再從第 6 步 3 重新確認與驗證
+4. **逐一驗證每個 commit**（tester；第一次開發在 commit 之後，退回修改在 reviewer 審查之後）：tester 用 `git switch --detach <hash>` 逐一切到本輪的每個 commit，執行格式檢查與受影響範圍的建置、測試，記錄每個 commit 的結果，完成後 `git switch <分支名稱>` 切回。有 commit 沒通過時，先把 tester 的結果以「🤖 逐一驗證結果（Claude tester）」留言（已經有 PR 時留言到 PR，還沒有 PR 時留言到子 issue）、取得連結，再交回 implementer 修正並**新增修正 commit**（不改寫），「為什麼」引用這則留言，再從第 6 步 3 重新確認與驗證
 5. 把 commit 規劃寫進開發回報的「## Commits」（退回修改時寫進修改回報的「## Commits」）：範圍（基準 → 第一個 → 最後一個，附 compare 連結）、每個 commit 的順序、hash、標題、為什麼，以及排序理由（格式見 `CLAUDE.md`「回報與 PR」）
 6. push 自己的分支：`git push -u origin <分支名稱>`
 - **不**改寫已 push 的 commit（不 amend、不 rebase、不 force push）

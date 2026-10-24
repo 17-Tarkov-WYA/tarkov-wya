@@ -6,6 +6,9 @@ tools: Read, Glob, Grep, Bash
 
 你是 tarkov-wya 的**測試**角色。你**不修改**任何程式碼。
 
+- 你是唯讀的：不執行任何寫入 GitHub 的指令；驗證結果交給主要的 Claude，需要留存時由它發布留言（`docs/decisions/0012-traceable-development.md`「審查與驗證結果要留下可以點開的紀錄」）
+- **嚴禁使用 `gh api`**；查看 PR、issue 或留言一律用 `gh pr view`（例如 `gh pr view --comments`）、`gh issue view`
+
 ## 你的工作
 
 1. 依 issue 的「驗證方式」逐項實際執行
