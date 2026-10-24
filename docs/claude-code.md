@@ -103,7 +103,7 @@ repo 的 **Settings → Rules → Rulesets → New branch ruleset**：
     /develop-issue <子 issue 編號>
     ```
 
-Claude 會依序：確認狀態、上層目標、dev 分支與依賴 → 讀取子 issue、目標與相關文件 → 從 dev 分支開出子分支 → 留言「🤖 開始開發（Claude）」並改為 `status:in-progress` → implementer 實作 → tester 驗證 → reviewer 審查 → 依內容性質分批 commit（每個 commit 內文寫出改了什麼、為什麼與順序）→ tester 逐一驗證每個 commit → push 分支 → **開 PR 到 dev 分支**（內容為「🤖 開發回報（Claude）」，第一行 `Closes #<編號>`）→ 等 CI 結束，在 PR 留言「🤖 CI 結果（Claude）」→ 在子 issue 留言「🤖 完成條件確認（Claude）」→ 改為 `status:review`。
+Claude 會依序：確認狀態、上層目標、dev 分支與依賴 → 讀取子 issue、目標與相關文件 → 從 dev 分支開出子分支 → 留言「🤖 開始開發（Claude）」並改為 `status:in-progress` → implementer 實作 → tester 驗證 → reviewer 審查變更與 commit 規劃 → 依規劃 commit（每個 commit 有明確的目的，內文寫出改了什麼、為什麼與順序）→ tester 逐一驗證每個 commit → push 分支 → **開 PR 到 dev 分支**（內容為「🤖 開發回報（Claude）」，第一行 `Closes #<編號>`）→ 等 CI 結束，在 PR 留言「🤖 CI 結果（Claude）」→ 在子 issue 留言「🤖 完成條件確認（Claude）」→ 改為 `status:review`。
 
 所以看到 `status:review` 時，CI 已經結束，可以直接審核。
 
@@ -120,7 +120,7 @@ Claude 會依序：確認狀態、上層目標、dev 分支與依賴 → 讀取�
 | 用哪個分支 | issue 留言「🤖 開始開發（Claude）」 |
 | 完成條件驗證到哪裡 | 子 issue 留言「🤖 完成條件確認（Claude）」（以最新的一則為準） |
 | CI 結果 | PR 留言「🤖 CI 結果（Claude）」 |
-| reviewer 的審查結果、tester 的逐一驗證結果 | PR 留言「🤖 審查結果（Claude reviewer）」「🤖 逐一驗證結果（Claude tester）」（只在產生修正 commit 時留言；還沒有 PR 時在子 issue） |
+| reviewer 的審查結果、tester 的逐一驗證結果 | reviewer 提出必須修正（M）、或逐一驗證失敗時，會留言到 PR（還沒有 PR 時在子 issue）；沒有 M 的審查結果摘要在開發回報或修改回報 |
 
 各狀態標籤的意思與轉換見 [`workflow.md`](workflow.md) 第 2 節。
 
@@ -132,14 +132,14 @@ Claude 會依序：確認狀態、上層目標、dev 分支與依賴 → 讀取�
 - [ ] PR 內容（開發回報）：每一條完成條件都是 ✅，且附有**實際執行的指令與結果**
 - [ ] 子 issue 的「🤖 完成條件確認（Claude）」留言：逐條原文引用完成條件，沒有 ❌；👤 的項目自己確認過。issue 內容沒有被修改（標題旁沒有「edited」）
 - [ ] 「偏離或未完成」「需要使用者決定的事」都已處理
-- [ ] **Commits**：依內容性質拆分（設定、程式、UI、驗證實驗、測試、文件），每個 commit 內文都有「改了什麼」「為什麼」；回報「## Commits」的「單獨驗證」欄若有 ❌，都寫出由哪個 commit 修正
+- [ ] **Commits**：每個 commit 都有明確的目的（同類別的變更放在一起，不是大雜燴，也沒有為拆而拆），內文都有「改了什麼」「為什麼」；回報「## Commits」的「單獨驗證」欄若有 ❌，都寫出由哪個 commit 修正
 - [ ] **Files changed**：變更內容沒有超出「不做的範圍」
 - [ ] **Checks** 與「🤖 CI 結果（Claude）」留言：CI 全部通過
 - [ ] 自己執行一次驗證方式（例如 `dotnet build`）
 
 之後：
 
-- **需要修改**：在 PR 的 **Conversation** 留言，**逐條寫出要改什麼**（行內留言只當補充，Claude 不一定讀得到）；子 issue 的標籤改成 `status:changes-requested`，再執行 `/develop-issue <編號>`。Claude 會在同一個分支依每條意見分別在本機 commit，push 前由 reviewer 審查、tester 逐一驗證每個 commit，再 push（PR 自動更新），在 PR 留言「🤖 修改回報（Claude）」與新的「🤖 CI 結果（Claude）」，並在子 issue 另留一則新的「🤖 完成條件確認（Claude）」
+- **需要修改**：在 PR 的 **Conversation** 留言，**逐條寫出要改什麼**（行內留言只當補充，Claude 不一定讀得到）；子 issue 的標籤改成 `status:changes-requested`，再執行 `/develop-issue <編號>`。Claude 會在同一個分支修改，經 reviewer 審查變更與 commit 規劃後依規劃 commit，tester 逐一驗證每個 commit，再 push（PR 自動更新），在 PR 留言「🤖 修改回報（Claude）」與新的「🤖 CI 結果（Claude）」，並在子 issue 另留一則新的「🤖 完成條件確認（Claude）」
 - **通過**：按 **Create a merge commit** 合併到 dev 分支（保留每個 commit）；工作流程「關閉已合併的子 issue」會自動關閉子 issue；合併後刪除子分支
 - 「🤖 完成條件確認」只代表 Claude 已自行驗證；**你按下合併才是審核結果**
 - **不要了**：自己關閉 PR，並視情況調整子 issue

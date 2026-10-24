@@ -21,7 +21,7 @@ flowchart LR
 | 1. 討論 | 使用者＋Claude | 討論開發方向；結論寫成 [決策紀錄](decisions) 或更新 `docs/` |
 | 2. 建目標 | 使用者 | 用「🎯 目標」範本建立目標 issue，並從 `main` 開出對應的 dev 分支 |
 | 3. 建子 issue | 使用者 | 在目標 issue 下建立子 issue，規格寫完後加上 `status:ready` |
-| 4. 開發 | 另一個 Claude（agent team） | `/develop-issue <編號>`：從 dev 分支開出子分支開發，依內容拆分 commit，完成後開 PR 到 dev 分支，PR 內容就是開發回報；等 CI 結束，在 PR 留言 CI 結果、在子 issue 留言完成條件確認 |
+| 4. 開發 | 另一個 Claude（agent team） | `/develop-issue <編號>`：從 dev 分支開出子分支開發，審查變更與 commit 規劃後依規劃 commit，完成後開 PR 到 dev 分支，PR 內容就是開發回報；等 CI 結束，在 PR 留言 CI 結果、在子 issue 留言完成條件確認 |
 | 5. 審核 | 使用者 | 在 PR 頁面檢查回報、commit、差異與 CI；通過就合併到 dev 分支，需要修改就退回 |
 | 6. 完成目標 | 使用者 | 子 issue 全部關閉後做最後審核，把 dev 分支合併到 `main`，目標 issue 隨之關閉 |
 
@@ -178,7 +178,14 @@ main ─────────────────────────
 
 ### commit 的拆分
 
-一個 commit 只包含一種**內容性質**（[`decisions/0012`](decisions/0012-traceable-development.md)）：
+每個 commit 都要有**針對性**（[`decisions/0012`](decisions/0012-traceable-development.md)；這是判斷的框架，不是固定分類）：
+
+- 每個 commit 都應有一個明確的目的：只看該 commit 的變更與訊息，就能說明它做了什麼、為什麼做
+- 不要將所有修改一股腦塞進同一個大雜燴 commit，也不要為了拆分而拆分，導致相關變更失去整體意義
+- 類別相似、性質相同的變更可以聚合在同一個 commit；多條同類別的意見可以合併處理，「為什麼」完整列出每一條對應的來源
+- 一條意見若涉及不同目的或性質的變更（例如同時涉及 UI 與 CI），可以依實際情況拆分為多個 commit
+- 不要求一條意見對應一個 commit，也不要求每個 commit 僅對應一條意見
+- 下表的性質保留為常見分組方式的參考框架，而非必須遵守的一對一分類：
 
 | 性質 | 內容 | 類型 |
 |---|---|---|
@@ -189,17 +196,15 @@ main ─────────────────────────
 | 測試 | 測試程式與範例資料 | `test` |
 | 文件 | README、`docs/`、`CLAUDE.md`、`.claude/` 中的說明 | `docs` |
 
-- 只有一種性質時，一個 commit 即可；同一種性質但目的不同時，也要拆開
-- **不規定先後順序**：上表只說明有哪些性質，順序依當下最適合的方式決定，但必須做到：
-    - **每個 commit 單獨都能通過驗證**：commit 之後，tester 逐一切到每個 commit（`git switch --detach <hash>`），執行格式檢查與受影響範圍的建置、測試並記錄結果，完成後切回子 issue 分支。第一次開發是「審查 → commit → 逐一驗證」；退回修改是「commit → 審查 → 逐一驗證」；有 commit 沒通過就加修正 commit，不改寫
-        - 失敗的 commit，以及它之後、修正之前因同一個原因失敗的 commit，在「## Commits」的「單獨驗證」欄標示「❌（由 <修正 commit> 修正）」
-        - tester 重新驗證時，只驗證上次驗證之後新增的 commit，並確認最後一個 commit 通過；已標示 ❌ 且有修正 commit 的，不再阻擋整輪
+- **commit 規劃**：主要的 Claude 依當次變更決定分組，在 reviewer 審查前提出 commit 規劃（目的／標題、包含的檔案、分組理由、「為什麼」的來源、擬好的 commit 訊息）；以檔案為最小分組單位，同一個檔案不分配給不同 commit（因逐一驗證失敗而新增修正 commit 時不在此限）。reviewer 評估分組是否有針對性，可以要求調整、合併或拆分
+- **先審查、再 commit**：第一次開發、退回修改、CI 失敗後的修正都是同一個流程——實作 → tester 驗證工作目錄整體變更 → reviewer 審查工作目錄變更與 commit 規劃 → 依審查意見修正 → 審查通過後依規劃建立 commit → tester 逐一驗證每個 commit → push。審查後的修正併入相關的變更，不另外為審查意見建立修正 commit
+- **不規定先後順序**：順序依當下最適合的方式決定，但必須做到：
+    - **每個 commit 單獨都能通過驗證**：建立 commit 之後，tester 逐一切到每個 commit（`git switch --detach <hash>`），執行格式檢查與受影響範圍的建置、測試並記錄結果，完成後切回子 issue 分支
+        - 驗證失敗時：留言 tester 的結果 → 在工作目錄修正並擬定修正 commit 規劃 → reviewer 增量審查 → 新增修正 commit（不改寫原本的 commit）→ tester 驗證新增的修正 commit，並確認最後一個 commit 通過 → push
+        - 失敗的 commit，以及它之後、修正之前因同一個原因失敗的 commit，在「## Commits」的「單獨驗證」欄標示「❌（由 <修正 commit> 修正）」；已標示失敗並由後續 commit 修正的歷史 commit，不阻擋通過
     - **排序有理由**：commit 規劃寫出順序與為什麼這樣排，寫進開發回報的「## Commits」（退回修改寫進修改回報）
     - **看得出頭尾**：每個 commit 內文加一行「順序：本輪第 k 個，基準 <hash>」。**每一次 push 就是一輪**：分支還沒 push 過時，基準是開分支時 dev 分支的 commit；之後的每一次 push（包含退回修改、CI 失敗後的修正），基準一律是 push 之前的 `origin/<子 issue 分支>`。開發回報、修改回報、CI 結果、完成條件確認都寫出範圍「基準 → 第一個 → 最後一個」與 compare 連結。commit 內文寫不了尾，尾以回報與留言為準
-- 退回修改時，每一條修改意見各自一個（或一組）commit，「為什麼」寫出對應的意見
-- 審查的時機：第一次開發先審查、再 commit；退回修改時每條意見改完就在本機 commit，全部改完、push 之前再審查，必須修正時新增修正 commit；push 前，最後一次審查之後新增的 commit（包含逐一驗證失敗後的修正 commit），都要再交給 reviewer，只審查新增的 commit
-- reviewer 意見的 commit 拆分：必須修正（M）一條一個 commit，同一個根本原因造成的多條可以合併，「為什麼」列出所有編號；建議（S）可以合成一個「處理審查建議」的 commit，「為什麼」逐一列出編號
-- 不改寫已 push 的 commit
+- 已建立的 commit 不改寫（不 `git commit --amend`、不 `git rebase`）
 
 ### commit 訊息
 
@@ -254,7 +259,7 @@ fix(planner): 修正手動修正後進度被 log 覆蓋 (#21)
 
 | PR | 合併方式 | 理由 |
 |---|---|---|
-| 子 issue 分支 → dev 分支 | **Create a merge commit** | 保留依內容拆分的每個 commit，git 歷史看得出每一部分改了什麼、為什麼改 |
+| 子 issue 分支 → dev 分支 | **Create a merge commit** | 保留拆好的每個 commit，git 歷史看得出每一部分改了什麼、為什麼改 |
 | dev 分支 → `main` | **Create a merge commit** | 保留每個子 issue 的合併點與 commit，`main` 上看得出目標由哪些工作組成 |
 
 - `git log --first-parent` 只看合併點：在 dev 分支上一個子 issue 一個合併點，在 `main` 上一個目標一個合併點
@@ -269,15 +274,15 @@ GitHub 只在 PR 合併到**預設分支（`main`）**時，才會自動關閉 `
 
 - 開發規則、回報格式與禁止事項都寫在 [`CLAUDE.md`](../CLAUDE.md)；環境設定見 [`claude-code.md`](claude-code.md)
 - `/next-issue`：列出目前可以接手的 issue
-- `/develop-issue <編號>`：檢查狀態、上層目標與依賴 → 留言「🤖 開始開發」並改為 `status:in-progress` → 從 dev 分支開出子分支開發 → 依內容性質分批 commit（第 6 節）→ tester 逐一驗證每個 commit → **開 PR 到 dev 分支**（內容為開發回報，第一行 `Closes #<編號>`，「## Commits」列出每個 commit）→ 等 CI 結束（`gh pr checks --watch`），在 PR 留言「🤖 CI 結果」→ 在子 issue 留言「🤖 完成條件確認」→ 改為 `status:review`
-- 退回修改時：讀取 PR 上的意見 → 在原分支依每條意見分別在本機 commit → reviewer 在 push 前審查（必須修正時新增修正 commit）→ tester 逐一驗證每個 commit → push → 在 PR 留言「🤖 修改回報」→ 等 CI 結束並留言「🤖 CI 結果」→ 在子 issue **另留一則新的**「🤖 完成條件確認」→ 改為 `status:review`
+- `/develop-issue <編號>`：檢查狀態、上層目標與依賴 → 留言「🤖 開始開發」並改為 `status:in-progress` → 從 dev 分支開出子分支開發 → reviewer 審查變更與 commit 規劃 → 依規劃 commit（第 6 節）→ tester 逐一驗證每個 commit → **開 PR 到 dev 分支**（內容為開發回報，第一行 `Closes #<編號>`，「## Commits」列出每個 commit）→ 等 CI 結束（`gh pr checks --watch`），在 PR 留言「🤖 CI 結果」→ 在子 issue 留言「🤖 完成條件確認」→ 改為 `status:review`
+- 退回修改時：讀取 PR 上的意見 → 在原分支修改 → reviewer 審查變更與 commit 規劃 → 依規劃 commit（第 6 節）→ tester 逐一驗證每個 commit → push → 在 PR 留言「🤖 修改回報」→ 等 CI 結束並留言「🤖 CI 結果」→ 在子 issue **另留一則新的**「🤖 完成條件確認」→ 改為 `status:review`
 - 完成條件的驗證結果寫在子 issue 的「🤖 完成條件確認」留言中：逐條原文引用 issue 的完成條件，標示 ✅／❌／👤；**不修改 issue 內容**，也不在目標 issue 留言
 - 只在自己的子 issue 分支上開發，可以 push 自己的分支、開 PR；**不 push 到 main 或 dev 分支、不合併／關閉／核准 PR、不關閉 issue**
 
 ## 8. 審核與合併（使用者）
 
 - 從 [Pull requests](https://github.com/17-Tarkov-WYA/tarkov-wya/pulls) 或 [`status:review`](https://github.com/17-Tarkov-WYA/tarkov-wya/issues?q=is%3Aopen+label%3Astatus%3Areview) 找到等待審核的工作
-- 在 PR 頁面確認**目標分支是目標的 dev 分支**（不是 `main`），對照開發回報與子 issue 的「🤖 完成條件確認」留言，檢查 **Commits**（是否依內容拆分、內文是否寫出改了什麼與為什麼）、**Files changed** 與「🤖 CI 結果」留言
+- 在 PR 頁面確認**目標分支是目標的 dev 分支**（不是 `main`），對照開發回報與子 issue 的「🤖 完成條件確認」留言，檢查 **Commits**（每個 commit 是否有明確的目的、內文是否寫出改了什麼與為什麼）、**Files changed** 與「🤖 CI 結果」留言
 - **需要修改**：在 PR 的 **Conversation** 留言，**逐條寫出要改什麼**（行內留言可以當作補充，但要求本身請寫在留言中，Claude 才能完整讀到）；把子 issue 的標籤改成 `status:changes-requested`，再執行 `/develop-issue <編號>`
 - **通過**：CI 通過後按 **Create a merge commit**（保留每個 commit）；子 issue 由工作流程自動關閉
 - 合併後刪除子 issue 分支
