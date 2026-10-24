@@ -18,7 +18,7 @@
 | [0008](0008-priority.md) | 優先開發 planner 與 client，map 與 server 暫停 | 已採用 | 2026-10-24 |
 | [0009](0009-development-conventions.md) | 開發規範：分支、commit 與程式風格 | 已採用 | 2026-10-24 |
 | [0010](0010-claude-code-integration.md) | Claude Code 整合與權限 | 已採用 | 2026-10-24 |
-| [0011](0011-goals-and-status.md) | 目標與子 issue、dev 分支、狀態標籤與分支規則 | 部分被 0012 取代（合併方式） | 2026-10-24 |
+| [0011](0011-goals-and-status.md) | 目標與子 issue、狀態標籤與分支規則 | 部分被 0012 取代（合併方式） | 2026-10-24 |
 | [0012](0012-traceable-development.md) | 可追蹤的開發紀錄：commit 拆分、合併方式、CI 回報與完成條件確認 | 已採用 | 2026-10-24 |
 
 ## 狀態
