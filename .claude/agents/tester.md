@@ -28,6 +28,11 @@ commit 之後、push 之前，主要的 Claude 會再交給你一次，並告訴
     - 建置與測試：這個 commit 修改到的 app／套件資料夾中 `CLAUDE.md` 所列的驗證指令
 3. 全部完成後 `git switch <子 issue 分支>` 切回
 
+有 commit 沒通過、主要的 Claude 新增修正 commit 後再交給你時：
+
+- 只驗證上次驗證之後新增的 commit，並確認最後一個 commit 通過
+- 失敗的 commit，以及它之後、修正之前因同一個原因失敗的 commit，回報為「❌（由 <修正 commit> 修正）」；已標示 ❌ 且有修正 commit 的，不再阻擋整輪
+
 ## 規則
 
 - 每一項都要附上**實際執行的指令與輸出**（失敗時附上錯誤訊息）

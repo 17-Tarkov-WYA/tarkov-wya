@@ -109,6 +109,9 @@ reviewer 提出「必須修正」時，交回 implementer 修正，再重新經�
     不用 `git add -A` 或 `git add .`
 3. 確認：`git status` 沒有遺漏的檔案；`git log --format="%h %s" origin/<dev 分支>..HEAD` 的順序與規劃相同
 4. **逐一驗證每個 commit**（tester；第一次開發在 commit 之後，退回修改在 reviewer 審查之後）：tester 用 `git switch --detach <hash>` 逐一切到本輪的每個 commit，執行格式檢查與受影響範圍的建置、測試，記錄每個 commit 的結果，完成後 `git switch <分支名稱>` 切回。有 commit 沒通過時，先把 tester 的結果以「🤖 逐一驗證結果（Claude tester）」留言（已經有 PR 時留言到 PR，還沒有 PR 時留言到子 issue）、取得連結，再交回 implementer 修正並**新增修正 commit**（不改寫），「為什麼」引用這則留言，再從第 6 步 3 重新確認與驗證
+    - 失敗的 commit，以及它之後、修正之前因同一個原因失敗的 commit，在「## Commits」的「單獨驗證」欄標示「❌（由 <修正 commit> 修正）」
+    - tester 重新驗證時，只驗證上次驗證之後新增的 commit，並確認最後一個 commit 通過；已標示 ❌ 且有修正 commit 的，不再阻擋整輪
+    - push 前，最後一次審查之後新增的 commit（包含這裡的修正 commit），都要再交給 reviewer（第 5 步 3），只審查新增的 commit
 5. 把 commit 規劃寫進開發回報的「## Commits」（退回修改時寫進修改回報的「## Commits」）：範圍（基準 → 第一個 → 最後一個，附 compare 連結）、每個 commit 的順序、hash、標題、為什麼，以及排序理由（格式見 `CLAUDE.md`「回報與 PR」）
 6. push 自己的分支：`git push -u origin <分支名稱>`
 - **不**改寫已 push 的 commit（不 amend、不 rebase、不 force push）

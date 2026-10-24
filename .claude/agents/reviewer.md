@@ -21,6 +21,7 @@ tools: Read, Glob, Grep, Bash
 - 第一次開發不使用 `git diff origin/<目標的 dev 分支>...HEAD`：審查時還沒有 commit，結果會是空的
 - 未追蹤的新檔案不會出現在 `git diff` 中，要直接讀取檔案內容
 - 退回修改時提出「必須修正」，主要的 Claude 會**新增修正 commit**（不改寫既有的 commit）
+- push 前，最後一次審查之後新增的 commit（包含逐一驗證失敗後的修正 commit），主要的 Claude 會再交給你：只審查新增的 commit（逐一 `git show <hash>`）
 
 逐項確認：
 

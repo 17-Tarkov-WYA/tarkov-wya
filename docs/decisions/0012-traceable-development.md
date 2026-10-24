@@ -30,6 +30,9 @@
 - 只有一種性質時，一個 commit 即可；同一種性質但目的不同時，也要拆開
 - **不規定先後順序**：上表只說明有哪些性質。順序由 Claude 依當下最適合的方式決定，但必須做到：
     - **每個 commit 單獨都能通過驗證**：commit 之後，tester 逐一切到每個 commit（`git switch --detach <hash>`），執行格式檢查與受影響範圍的建置、測試，記錄每個 commit 的結果，完成後切回子 issue 分支。第一次開發是「審查 → commit → 逐一驗證」；退回修改是「commit → 審查 → 逐一驗證」；有 commit 沒通過就加修正 commit，不改寫
+        - 目標仍是每個 commit 單獨通過驗證；失敗時不改寫，新增修正 commit
+        - 失敗的 commit，以及它之後、修正之前因同一個原因失敗的 commit，在「## Commits」的「單獨驗證」欄標示「❌（由 <修正 commit> 修正）」
+        - tester 重新驗證時，只驗證上次驗證之後新增的 commit，並確認最後一個 commit 通過；已標示 ❌ 且有修正 commit 的，不再阻擋整輪
     - **排序有理由**：commit 規劃寫出順序與為什麼這樣排，寫進開發回報的「## Commits」（退回修改寫進修改回報）
     - **看得出頭尾**：
         - 每個 commit 內文加一行「順序：本輪第 k 個，基準 <hash>」
@@ -83,6 +86,7 @@
     - 本機的每一個 commit：逐一 `git show <hash>`，確認每個 commit 只包含它對應的那一條意見
     - 整體的變更：`git diff origin/<dev 分支>`
 - reviewer 提出必須修正時，**新增修正 commit**，不改寫既有的 commit（不 amend、不 rebase）；「為什麼」寫出 reviewer 的哪一條意見，以及它對應的 PR 意見
+- push 前，最後一次審查之後新增的 commit（包含逐一驗證失敗後的修正 commit），都要再交給 reviewer，只審查新增的 commit
 
 ### 審查與驗證結果要留下可以點開的紀錄
 
