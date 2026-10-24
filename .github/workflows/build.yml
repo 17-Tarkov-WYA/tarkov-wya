@@ -1,0 +1,21 @@
+name: 建置
+
+on:
+  push:
+    branches: [main, "dev/**"]
+  pull_request:
+
+jobs:
+  dotnet:
+    name: 建置與測試（.NET）
+    # planner 是 WPF 程式，只能在 Windows 上建置
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      # .NET SDK 版本由 global.json 決定
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - run: dotnet restore TarkovWYA.slnx
+      - run: dotnet build TarkovWYA.slnx -c Release --no-restore
+      - run: dotnet test TarkovWYA.slnx -c Release --no-build
