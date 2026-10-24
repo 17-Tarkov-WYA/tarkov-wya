@@ -144,10 +144,16 @@ tarkov-wya/
 ├── packages/
 │   ├── protocol/    # 事件與資料格式規格
 │   └── game-data/   # 遊戲資料
-├── tests/           # 測試專案與去除個人資訊的範例資料（骨架階段建立）
+├── tests/
+│   ├── TarkovWYA.Planner.Tests/  # planner 的 xUnit 測試
+│   ├── TarkovWYA.Client.Tests/   # client 的 xUnit 測試
+│   └── fixtures/                 # 去除個人資訊的範例資料
 ├── docs/            # 架構、規劃、流程、開發風格與決策紀錄
 ├── .claude/         # Claude Code 設定：agents、commands、權限
 ├── .github/         # issue／PR 範本、labels、CI
+├── TarkovWYA.slnx           # 包含 planner、client 與測試專案的 solution
+├── global.json              # 指定 .NET SDK 版本
+├── Directory.Build.props    # 所有 C# 專案共用的建置設定
 └── CLAUDE.md        # 開發用 Claude 的規則
 ```
 

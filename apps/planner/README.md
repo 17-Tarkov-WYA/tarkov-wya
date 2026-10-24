@@ -8,7 +8,7 @@
 
 你進行到哪裡：Windows 桌面程式，回答「我的任務做到哪？這場該帶什麼？」。資料由 [client](../client) 提供。
 
-> 目前只有設計，尚未建立程式。整體設計見 [`docs/architecture.md`](../../docs/architecture.md)。
+> 目前只有空白視窗，尚無任何功能。整體設計見 [`docs/architecture.md`](../../docs/architecture.md)。
 
 ## 規劃功能 (Features)
 
@@ -25,6 +25,20 @@
 
 ## 如何開始 (How to start)
 
-需求（預定）：Windows 10／11、[.NET SDK 10](https://dotnet.microsoft.com/download)
+需求：Windows 10／11、[.NET SDK 10](https://dotnet.microsoft.com/download)
 
-尚未建立程式，執行方式會在建立骨架後補上。
+在 repo 根目錄執行：
+
+```powershell
+# 啟動 planner，會開啟標題為「Tarkov-WYA Planner」的空白視窗
+dotnet run --project apps/planner
+
+# 執行 planner 的測試
+dotnet test tests/TarkovWYA.Planner.Tests
+```
+
+| 路徑 | 說明 |
+|---|---|
+| `TarkovWYA.Planner.csproj` | WPF 專案（`net10.0-windows`） |
+| `UiText.cs` | 集中管理的 UI 文字 |
+| [`../../tests/TarkovWYA.Planner.Tests`](../../tests/TarkovWYA.Planner.Tests) | xUnit 測試專案 |
