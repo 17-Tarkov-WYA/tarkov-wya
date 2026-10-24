@@ -34,7 +34,7 @@ csharp_style_var_when_type_is_apparent = true:suggestion
 csharp_new_line_before_open_brace = all
 
 # 命名規則
-# 各規則的 severity 只影響編輯器；建置時要另外設定 IDE1006 的層級，命名規則才會被檢查
+# 命名規則的 severity 只影響編輯器；建置時要另外設定 IDE1006 的層級，命名規則才會被檢查
 dotnet_diagnostic.IDE1006.severity = warning
 
 dotnet_naming_symbols.private_fields.applicable_kinds = field

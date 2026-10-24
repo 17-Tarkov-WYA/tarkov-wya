@@ -3,8 +3,8 @@
 public class StartupMessageTests
 {
     [Fact]
-    public void Text_OnStartup_IsNotEmpty()
+    public void Text_Default_IsTraditionalChineseMessage()
     {
-        Assert.False(string.IsNullOrWhiteSpace(StartupMessage.Text));
+        Assert.Equal("Tarkov-WYA Client 已啟動。", StartupMessage.Text);
     }
 }
