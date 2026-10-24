@@ -57,10 +57,12 @@ argument-hint: <子 issue 編號>
     🤖 開始開發（Claude）
 
     - 分支：`<分支名稱>`
-    - 基準：`origin/<dev 分支>` @ `<commit hash>`（沿用分支時寫「沿用既有分支」）
+    - 基準：`origin/<dev 分支>` @ <commit hash>（沿用分支時寫「沿用既有分支」）
     - PR 目標：`<dev 分支>`
     - 上層目標：#<目標編號>
     ```
+
+    commit hash 與 issue 編號不加反引號，GitHub 才會自動連結（見 `CLAUDE.md`「回報與 PR」）
 
     `gh issue comment $ARGUMENTS --repo <repo> --body-file <暫存檔>`
 

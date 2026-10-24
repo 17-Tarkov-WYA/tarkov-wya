@@ -136,6 +136,8 @@ reviewer 提出「必須修正」時，交回 implementer，直到沒有必須�
 
 回報寫在 **PR 的內容**中，使用者在 PR 頁面審核。所有回報都先存成**暫存檔**（不要放在 repo 中），再以 `--body-file` 傳入，並在對話中顯示同樣的內容。
 
+**commit 與 issue／PR 要能點擊**：所有回報與留言中，commit hash 與 issue／PR 編號**不加反引號、不放在程式碼區塊中**，直接寫（例如 0d9a4fa、#10），GitHub 會自動連結。hash 至少 7 碼，且必須是**已經 push** 的 commit。分支名稱、檔案路徑、指令維持反引號。
+
 | 情況 | 做什麼 |
 |---|---|
 | **第一次完成** | 開 PR **到目標的 dev 分支**：`gh pr create --repo 17-Tarkov-WYA/tarkov-wya --base <目標的 dev 分支> --head <你的分支> --title "<commit 格式的標題>" --body-file <回報>`，內容使用下方「開發回報」格式 |
@@ -164,7 +166,7 @@ issue 上另有「🤖 完成條件確認（Claude）」留言。
 ## Commits
 | commit | 標題 | 為什麼 |
 |---|---|---|
-| `<hash>` | <commit 標題> | <commit 內文「為什麼」的摘要> |
+| <hash> | <commit 標題> | <commit 內文「為什麼」的摘要> |
 
 ## 驗證
 | 項目 | 指令 | 結果 |
@@ -178,7 +180,7 @@ issue 上另有「🤖 完成條件確認（Claude）」留言。
 - <問題；沒有就寫「無」>
 
 ## 分支
-`<分支名稱>`（最後 commit：`<hash>`）
+`<分支名稱>`（最後 commit：<hash>）
 ```
 
 **修改回報**（PR 留言）：
@@ -190,7 +192,7 @@ issue 上另有「🤖 完成條件確認（Claude）」留言。
 - <使用者在 PR 上提出的每一項要求>
 
 ## 改了什麼
-- <對應每一項要求的修改>（commit `<hash>`）
+- <對應每一項要求的修改>（commit <hash>）
 
 ## 驗證
 | 項目 | 指令 | 結果 |
@@ -206,7 +208,7 @@ issue 上另有「🤖 完成條件確認（Claude）」留言。
 ```markdown
 🤖 CI 結果（Claude）
 
-最後 commit：`<hash>`
+最後 commit：<hash>
 
 | 檢查 | 結果 |
 |---|---|
@@ -234,7 +236,7 @@ issue 上另有「🤖 完成條件確認（Claude）」留言。
 ```markdown
 🤖 完成條件確認（Claude）
 
-PR：#<PR 編號>（合併到 `<dev 分支>`）　最後 commit：`<hash>`　CI：通過
+PR：#<PR 編號>（合併到 `<dev 分支>`）　最後 commit：<hash>　CI：通過
 
 - ✅ <完成條件原文>：<如何確認>
 - ❌ <完成條件原文>：<原因>
