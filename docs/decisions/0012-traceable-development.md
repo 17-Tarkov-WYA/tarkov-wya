@@ -142,7 +142,7 @@ dev 分支合併到 `main` 後**不刪除**：ruleset 禁止刪除 `dev/**`，�
 
 - 決策 [0011](0011-goals-and-status.md) 的「合併方式」被本決策取代，0011 的狀態改為「部分被 0012 取代（合併方式）」
 - `docs/workflow.md`、`docs/claude-code.md`、`CLAUDE.md`、`.claude/commands/develop-issue.md`、`.claude/agents/implementer.md`、`.claude/agents/reviewer.md`、`.claude/agents/tester.md` 依本決策更新
-- 開發回報（PR 內容）與修改回報加上「## Commits」：範圍（附 compare 連結），以及每個 commit 的順序、hash、標題、為什麼，與排序理由
+- 開發回報（PR 內容）與修改回報加上「## Commits」：範圍（附 compare 連結），以及每個 commit 的順序、hash、標題、為什麼、單獨驗證，與排序理由
 - implementer 完成時依性質分組回報修改的檔案，主要的 Claude 據此拆 commit
 - `status:review` 改為在 CI 結果與完成條件確認都留言之後才加上
 - `docs/workflow.md`、`docs/claude-code.md` 的「完成目標」移除「刪除 dev 分支」的步驟

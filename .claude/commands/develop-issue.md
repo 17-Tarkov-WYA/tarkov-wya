@@ -112,7 +112,7 @@ reviewer 提出「必須修正」時，交回 implementer 修正，再重新經�
     - 失敗的 commit，以及它之後、修正之前因同一個原因失敗的 commit，在「## Commits」的「單獨驗證」欄標示「❌（由 <修正 commit> 修正）」
     - tester 重新驗證時，只驗證上次驗證之後新增的 commit，並確認最後一個 commit 通過；已標示 ❌ 且有修正 commit 的，不再阻擋整輪
     - push 前，最後一次審查之後新增的 commit（包含這裡的修正 commit），都要再交給 reviewer（第 5 步 3），只審查新增的 commit
-5. 把 commit 規劃寫進開發回報的「## Commits」（退回修改時寫進修改回報的「## Commits」）：範圍（基準 → 第一個 → 最後一個，附 compare 連結）、每個 commit 的順序、hash、標題、為什麼，以及排序理由（格式見 `CLAUDE.md`「回報與 PR」）
+5. 把 commit 規劃寫進開發回報的「## Commits」（退回修改時寫進修改回報的「## Commits」）：範圍（基準 → 第一個 → 最後一個，附 compare 連結）、每個 commit 的順序、hash、標題、為什麼、單獨驗證的結果（第 6 步 4），以及排序理由（格式見 `CLAUDE.md`「回報與 PR」）
 6. push 自己的分支：`git push -u origin <分支名稱>`
 - **不**改寫已 push 的 commit（不 amend、不 rebase、不 force push）
 - **不** push 到 `main` 或任何 `dev/*` 分支、**不** merge、**不**關閉 issue

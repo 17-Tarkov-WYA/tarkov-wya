@@ -202,9 +202,9 @@ issue 上另有「🤖 完成條件確認（Claude）」留言。
 ## Commits
 範圍：基準 <hash> → 第一個 <hash> → 最後一個 <hash>（比較：https://github.com/17-Tarkov-WYA/tarkov-wya/compare/<基準>...<最後一個>）
 
-| 順序 | commit | 標題 | 為什麼 |
-|---|---|---|---|
-| 1 | <hash> | <commit 標題> | <commit 內文「為什麼」的摘要> |
+| 順序 | commit | 標題 | 為什麼 | 單獨驗證 |
+|---|---|---|---|---|
+| 1 | <hash> | <commit 標題> | <commit 內文「為什麼」的摘要> | ✅ 通過／❌（由 <修正 commit> 修正） |
 
 排序理由：<為什麼這樣排>
 
@@ -237,9 +237,9 @@ issue 上另有「🤖 完成條件確認（Claude）」留言。
 ## Commits
 範圍：基準 <hash> → 第一個 <hash> → 最後一個 <hash>（比較：https://github.com/17-Tarkov-WYA/tarkov-wya/compare/<基準>...<最後一個>）
 
-| 順序 | commit | 標題 | 為什麼 |
-|---|---|---|---|
-| 1 | <hash> | <commit 標題> | <commit 內文「為什麼」的摘要> |
+| 順序 | commit | 標題 | 為什麼 | 單獨驗證 |
+|---|---|---|---|---|
+| 1 | <hash> | <commit 標題> | <commit 內文「為什麼」的摘要> | ✅ 通過／❌（由 <修正 commit> 修正） |
 
 排序理由：<為什麼這樣排>
 
