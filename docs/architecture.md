@@ -144,7 +144,11 @@ tarkov-wya/
 ├── packages/
 │   ├── protocol/    # 事件與資料格式規格
 │   └── game-data/   # 遊戲資料
-└── docs/            # 架構設計與開發規劃
+├── tests/           # 測試專案與去除個人資訊的範例資料（骨架階段建立）
+├── docs/            # 架構、規劃、流程、開發風格與決策紀錄
+├── .claude/         # Claude Code 設定：agents、commands、權限
+├── .github/         # issue／PR 範本、labels、CI
+└── CLAUDE.md        # 開發用 Claude 的規則
 ```
 
 ## 10. 授權 (License)

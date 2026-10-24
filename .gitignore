@@ -39,5 +39,8 @@ Thumbs.db
 desktop.ini
 .DS_Store
 
-# ===== Claude Code 工作區 =====
-.claude/
+# ===== Claude Code =====
+# 共用設定（.claude/settings.json、agents/、commands/）要上傳；以下為個人或暫時性檔案
+.claude/worktrees/
+.claude/settings.local.json
+CLAUDE.local.md

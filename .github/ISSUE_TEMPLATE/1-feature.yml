@@ -1,0 +1,77 @@
+name: ✨ 功能
+description: 新增或改善一項功能
+title: "[功能] "
+labels: ["type:feature"]
+body:
+  - type: input
+    id: parent
+    attributes:
+      label: 上層目標
+      description: 這個 issue 屬於哪個目標 issue？**要交給 Claude 開發就必須填寫**：Claude 會從目標讀取背景與開發分支（dev 分支），PR 也會合併到那裡。
+      placeholder: "#10"
+  - type: input
+    id: depends
+    attributes:
+      label: 依賴
+      description: 必須先完成（已關閉）的 issue，用逗號分隔。依賴未完成時 Claude 不會開始開發。沒有可以留空。
+      placeholder: "#11, #12"
+  - type: dropdown
+    id: scope
+    attributes:
+      label: 影響範圍
+      description: 這項功能屬於哪個 app 或套件？可以複選。
+      multiple: true
+      options:
+        - planner
+        - client
+        - map
+        - server
+        - protocol
+        - game-data
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: 目標
+      description: 這項功能要解決什麼問題？使用者能做到什麼？
+      placeholder: 例如：出發前選好地圖後，列出這場該帶的鑰匙。
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: 完成條件
+      description: 怎樣才算完成？用勾選清單列出。
+      value: |
+        - [ ]
+    validations:
+      required: true
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: 不做的範圍
+      description: 明確列出這個 issue 不處理的事，避免開發超出範圍。
+      placeholder: 例如：不處理藏身處需求（另開 issue）。
+    validations:
+      required: true
+  - type: textarea
+    id: refs
+    attributes:
+      label: 相關文件
+      description: 決策紀錄、架構章節、相關 issue。開發者看不到事前討論，請附上所有需要的連結。
+      placeholder: 例如：docs/decisions/0003-planner-map-separation.md、#2
+    validations:
+      required: true
+  - type: textarea
+    id: verify
+    attributes:
+      label: 驗證方式
+      description: 怎麼確認完成？要執行哪些指令、操作哪些畫面？
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: 補充
+      description: 設計想法、參考資料、截圖等。

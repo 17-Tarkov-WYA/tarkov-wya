@@ -2,7 +2,7 @@ name: 格式檢查
 
 on:
   push:
-    branches: [main]
+    branches: [main, "dev/**"]
   pull_request:
 
 jobs:
@@ -11,5 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: editorconfig-checker/action-editorconfig-checker@v3
+      # 此 action 沒有 v3 的簡寫 tag，必須寫完整版本
+      - uses: editorconfig-checker/action-editorconfig-checker@v3.0.0
       - run: editorconfig-checker

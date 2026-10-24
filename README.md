@@ -53,5 +53,15 @@ Tarkov-WYA 的主程式庫：從「你」出發，即時掌握你在《逃離塔
 建議閱讀順序：
 
 1. [`docs/architecture.md`](docs/architecture.md)：整體架構與設計決策
-2. [`docs/roadmap.md`](docs/roadmap.md)：開發順序與目前進度
-3. 各 app 與套件的 README
+2. [`docs/decisions/`](docs/decisions)：每一個設計決策的背景與理由
+3. [`docs/roadmap.md`](docs/roadmap.md)：開發順序與目前進度
+4. [`docs/workflow.md`](docs/workflow.md)：開發流程（討論 → issue → 開發 → 審核）、分支與 commit 命名
+5. [`docs/coding-style/`](docs/coding-style)：開發風格（通用規則與各語言分開）
+6. [`docs/claude-code.md`](docs/claude-code.md)：與 Claude Code 整合開發的設定與使用方式
+7. 各 app 與套件的 README
+
+在此 repo 中開發的 Claude 請先閱讀 [`CLAUDE.md`](CLAUDE.md)。
+
+## 參與開發 (Contributing)
+
+所有工作都從 [issue](https://github.com/17-Tarkov-WYA/tarkov-wya/issues) 開始，以 PR 關閉 issue 結束，詳見 [`docs/workflow.md`](docs/workflow.md)。

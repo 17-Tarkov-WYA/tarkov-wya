@@ -3,12 +3,15 @@
 目前優先開發 **planner** 與 **client**；map 與 server 暫停，待單人的進度規劃可以使用後再恢復。
 整體設計見 [`architecture.md`](architecture.md)。
 
+每個階段對應一個 [GitHub milestone](https://github.com/17-Tarkov-WYA/tarkov-wya/milestones)，實際進度以 issue 與 milestone 為準，開發流程見 [`workflow.md`](workflow.md)。
+
 ## 階段 (Phases)
 
 | 階段 | 內容 | 狀態 |
 |---|---|---|
 | 0. 說明與設計 | README、LICENSE、架構設計文件、開發規劃、上傳規則（`.gitignore`）與檔案格式檢查 | 完成 |
-| 1. 骨架 | planner（WPF）與 client（.NET 10）空白專案、solution、CI | 未開始 |
+| 0.5 開發基礎 | issue 驅動流程、Claude Code 整合（`CLAUDE.md`、agents、commands、權限）、開發風格、決策紀錄 | 完成 |
+| 1. 骨架 | planner（WPF）與 client（.NET 10）空白專案、solution、xUnit 測試專案、建置時的程式風格檢查、CI | 未開始 |
 | 2. 驗證實驗 | 讀取遊戲紀錄檔（log）與截圖資料夾，確認能取得哪些任務事件與座標格式 | 未開始 |
 | 3. protocol | 定義 client ⇄ planner 的事件與資料格式 | 未開始 |
 | 4. client | 讀取 log、本機中樞、系統匣常駐 | 未開始 |

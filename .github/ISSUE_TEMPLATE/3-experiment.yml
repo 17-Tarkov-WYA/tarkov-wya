@@ -1,0 +1,63 @@
+name: 🧪 驗證實驗
+description: 在開發前先確認某件事是否可行
+title: "[實驗] "
+labels: ["type:experiment"]
+body:
+  - type: input
+    id: parent
+    attributes:
+      label: 上層目標
+      description: 這個 issue 屬於哪個目標 issue？**要交給 Claude 開發就必須填寫**：Claude 會從目標讀取背景與開發分支（dev 分支），PR 也會合併到那裡。
+      placeholder: "#10"
+  - type: input
+    id: depends
+    attributes:
+      label: 依賴
+      description: 必須先完成（已關閉）的 issue，用逗號分隔。依賴未完成時 Claude 不會開始開發。沒有可以留空。
+      placeholder: "#11, #12"
+  - type: textarea
+    id: question
+    attributes:
+      label: 要驗證的問題
+      description: 這個實驗要回答什麼？
+      placeholder: 例如：遊戲紀錄檔是否記錄任務的開始、完成與失敗？
+    validations:
+      required: true
+  - type: textarea
+    id: method
+    attributes:
+      label: 驗證方式
+      description: 要看哪些檔案、做哪些操作？
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: 會影響的決策
+      description: 實驗結果可能改變哪些決策紀錄或設計？
+      placeholder: 例如：docs/decisions/0005-progress-source.md
+    validations:
+      required: true
+  - type: textarea
+    id: deliverable
+    attributes:
+      label: 產出
+      description: 實驗完成後要交付什麼？
+      value: |
+        - [ ] 結論寫在本 issue 的留言
+        - [ ] 更新 docs/roadmap.md 的「待驗證事項」
+        - [ ] 需要時新增或更新決策紀錄
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: 結論
+      description: 實驗完成後填寫，並更新 docs/roadmap.md 的「待驗證事項」。
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: 隱私確認
+      options:
+        - label: 實驗用的遊戲紀錄、截圖只放在 `experiments/data/`（不會上傳），貼到 issue 前已移除個人資訊
+          required: true

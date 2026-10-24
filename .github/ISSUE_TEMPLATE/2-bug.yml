@@ -1,0 +1,58 @@
+name: 🐛 錯誤回報
+description: 回報不正常的行為
+title: "[錯誤] "
+labels: ["type:bug"]
+body:
+  - type: input
+    id: parent
+    attributes:
+      label: 上層目標
+      description: 這個 issue 屬於哪個目標 issue？**要交給 Claude 開發就必須填寫**：Claude 會從目標讀取背景與開發分支（dev 分支），PR 也會合併到那裡。
+      placeholder: "#10"
+  - type: dropdown
+    id: scope
+    attributes:
+      label: 影響範圍
+      multiple: true
+      options:
+        - planner
+        - client
+        - map
+        - server
+        - protocol
+        - game-data
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: 發生了什麼
+      description: 實際的行為，以及預期應該是什麼。
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 重現步驟
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: textarea
+    id: refs
+    attributes:
+      label: 相關文件
+      description: 相關的決策紀錄、issue 或 PR（沒有可留空）。
+  - type: input
+    id: version
+    attributes:
+      label: 版本或 commit
+      placeholder: 例如：v0.1.0 或 03b4020
+  - type: textarea
+    id: logs
+    attributes:
+      label: 錯誤訊息或紀錄
+      description: 請先移除帳號、玩家名稱等個人資訊再貼上。
+      render: text

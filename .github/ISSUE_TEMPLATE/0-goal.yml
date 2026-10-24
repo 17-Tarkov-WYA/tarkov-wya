@@ -1,0 +1,90 @@
+name: 🎯 目標
+description: 由多個子 issue 組成的開發目標（不直接交給 Claude 開發）
+title: "[目標] "
+labels: ["type:goal"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        目標 issue 用來描述一個完整的開發方向。建立後：
+        1. 在本 issue 右側 **Development → Create a branch**，從 `main` 開出下方「開發分支」填寫的分支
+        2. 按 **Create sub-issue** 拆成子 issue，再把子 issue 交給 Claude 開發；子 issue 的 PR 會合併到這個分支
+        3. 子 issue 全部完成後，由你做最後審核，把開發分支合併到 `main`，本 issue 隨之關閉
+
+        流程見 `docs/workflow.md`。
+  - type: dropdown
+    id: scope
+    attributes:
+      label: 影響範圍
+      multiple: true
+      options:
+        - planner
+        - client
+        - map
+        - server
+        - protocol
+        - game-data
+        - 整個 repo
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: 目標
+      description: 完成後，使用者能做到什麼？
+    validations:
+      required: true
+  - type: input
+    id: branch
+    attributes:
+      label: 開發分支
+      description: 這個目標的 dev 分支，格式為 dev/<本 issue 編號>-<簡短英文說明>。建立 issue 後再從 main 開出這個分支；Claude 會從這裡讀取分支名稱。
+      placeholder: dev/1-skeleton
+    validations:
+      required: true
+  - type: textarea
+    id: background
+    attributes:
+      label: 背景
+      description: 討論的結論與為什麼要做。開發者看不到事前討論，重要結論請寫成決策紀錄並附在「相關文件」。
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: 整體完成條件
+      description: 所有子 issue 完成後，整體要達到什麼狀態？
+      value: |
+        - [ ]
+    validations:
+      required: true
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: 不做的範圍
+    validations:
+      required: true
+  - type: textarea
+    id: refs
+    attributes:
+      label: 相關文件
+      description: 決策紀錄、架構章節、相關 issue。
+    validations:
+      required: true
+  - type: textarea
+    id: plan
+    attributes:
+      label: 子 issue 規劃
+      description: 預計拆成哪些子 issue、順序與依賴。建立子 issue 後可以更新。
+      value: |
+        1.
+        2.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: 驗收方式
+      description: 子 issue 全部完成後，你要怎麼做最後審核？
+    validations:
+      required: true

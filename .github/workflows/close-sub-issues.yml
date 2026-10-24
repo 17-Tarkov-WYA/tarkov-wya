@@ -1,0 +1,52 @@
+name: 關閉已合併的子 issue
+
+# GitHub 只在 PR 合併到預設分支（main）時自動關閉 `Closes #N` 的 issue。
+# 子 issue 的 PR 合併到目標的 dev 分支時，由這個工作流程補上關閉的動作。
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - "dev/**"
+
+permissions:
+  issues: write
+  pull-requests: read
+
+jobs:
+  close:
+    name: 關閉 PR 內容中 Closes 的 issue
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v8
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const body = pr.body || "";
+            const pattern = /\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)/gi;
+            const numbers = [...new Set([...body.matchAll(pattern)].map((m) => Number(m[1])))];
+
+            if (numbers.length === 0) {
+              core.info("PR 內容沒有 Closes #N，不需要關閉 issue");
+              return;
+            }
+
+            for (const issue_number of numbers) {
+              const { data: issue } = await github.rest.issues.get({ ...context.repo, issue_number });
+              if (issue.pull_request || issue.state === "closed") {
+                continue;
+              }
+              await github.rest.issues.createComment({
+                ...context.repo,
+                issue_number,
+                body: `✅ 已由 #${pr.number} 合併到 \`${pr.base.ref}\`，自動關閉。`,
+              });
+              await github.rest.issues.update({
+                ...context.repo,
+                issue_number,
+                state: "closed",
+                state_reason: "completed",
+              });
+              core.info(`已關閉 #${issue_number}`);
+            }
