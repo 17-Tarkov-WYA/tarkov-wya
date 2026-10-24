@@ -58,7 +58,7 @@
 - **分支結構**：`main` ← 目標的 dev 分支 `dev/<目標編號>-<說明>`（使用者建立）← 子 issue 分支（你建立）
 - **你的分支**：`<類型>/<子 issue 編號>-<簡短英文說明>`，例如 `chore/2-solution`
 - **要用哪個分支**：
-    - `status:ready`：從最新的 `origin/<目標的 dev 分支>` 開新分支
+    - `status:ready`：從最新的 `origin/<dev 分支>` 開新分支
     - `status:changes-requested`：沿用 issue 留言「🤖 開始開發（Claude）」記錄的分支，不開新分支
     - 不從 `main` 或其他子 issue 的分支開出；不自行 merge 或 rebase，有衝突時在回報中說明
 - **PR 的目標分支**一律是**目標的 dev 分支**（`--base dev/...`），**絕對不是 `main`**
@@ -177,7 +177,7 @@ reviewer 要逐個 commit 確認：diff 中的**每一處**變更，都能對應
 
 | 情況 | 做什麼 |
 |---|---|
-| **第一次完成** | 開 PR **到目標的 dev 分支**：`gh pr create --repo 17-Tarkov-WYA/tarkov-wya --base <目標的 dev 分支> --head <你的分支> --title "<commit 格式的標題>" --body-file <回報>`，內容使用下方「開發回報」格式 |
+| **第一次完成** | 開 PR **到目標的 dev 分支**：`gh pr create --repo 17-Tarkov-WYA/tarkov-wya --base <dev 分支> --head <子 issue 分支> --title "<commit 格式的標題>" --body-file <回報>`，內容使用下方「開發回報」格式 |
 | **退回修改後完成** | 在原分支修改並 push（PR 會自動更新），再於 PR 留言「修改回報」：`gh pr comment <PR 編號> --repo 17-Tarkov-WYA/tarkov-wya --body-file <回報>` |
 | **以上兩種情況之後** | 依序：等 CI 結束 → 在 PR 留言「CI 結果」→ 在子 issue 留言「完成條件確認」→ 改為 `status:review`（格式見下方） |
 | **無法完成** | 不開 PR；在 issue 留言說明原因：`gh issue comment <編號> ...`，並改為 `status:blocked` |
@@ -187,7 +187,7 @@ reviewer 要逐個 commit 確認：diff 中的**每一處**變更，都能對應
 ```markdown
 Closes #<子 issue 編號>
 
-上層目標：#<目標編號>（合併到 `<目標的 dev 分支>`）
+上層目標：#<目標編號>（合併到 `<dev 分支>`）
 
 🤖 開發回報（Claude）
 
@@ -221,7 +221,7 @@ issue 上另有「🤖 完成條件確認（Claude）」留言。
 - <問題；沒有就寫「無」>
 
 ## 分支
-`<分支名稱>`（最後 commit：<hash>）
+`<子 issue 分支>`（最後 commit：<hash>）
 ```
 
 **修改回報**（PR 留言）：

@@ -39,13 +39,13 @@ argument-hint: <子 issue 編號>
 - **`status:changes-requested`（退回修改）**：找出子 issue 留言中最新一則「🤖 開始開發（Claude）」記錄的分支，沿用它，**不開新分支**
 
     ```
-    git switch <分支名稱>
+    git switch <子 issue 分支>
     git pull
     ```
 
-    本機沒有這個分支時：`git switch -c <分支名稱> origin/<分支名稱>`
+    本機沒有這個分支時：`git switch -c <子 issue 分支> origin/<子 issue 分支>`
 
-    讀取這個分支的 PR 與使用者的修改意見：`gh pr view <分支名稱> --repo <repo> --comments`。逐條列出要修改的項目；意見不清楚時先詢問使用者
+    讀取這個分支的 PR 與使用者的修改意見：`gh pr view <子 issue 分支> --repo <repo> --comments`。逐條列出要修改的項目；意見不清楚時先詢問使用者
 
 - 不從 `main` 或其他子 issue 的分支開出；不自行 merge 或 rebase
 
@@ -56,7 +56,7 @@ argument-hint: <子 issue 編號>
     ```markdown
     🤖 開始開發（Claude）
 
-    - 分支：`<分支名稱>`
+    - 分支：`<子 issue 分支>`
     - 基準：`origin/<dev 分支>` @ <commit hash>（沿用分支時寫「沿用既有分支」）
     - PR 目標：`<dev 分支>`
     - 上層目標：#<目標編號>
@@ -81,7 +81,7 @@ argument-hint: <子 issue 編號>
 2. **tester**：依完成條件與驗證方式實際執行並記錄結果
 3. **reviewer**：告訴它 dev 分支名稱、子 issue 分支名稱，與這次是第一次開發還是退回修改
     - 第一次開發（還沒 commit）：`git diff origin/<dev 分支>`，加上 `git status` 列出的未追蹤新檔案；不使用 `git diff origin/<dev 分支>...HEAD`（還沒有 commit，結果會是空的）
-    - 退回修改（已在本機 commit、還沒 push）：本輪全部的變更 `git diff origin/<分支名稱>`；本機的每一個 commit 逐一 `git show <hash>`，確認每個 commit 只包含它對應的那一條意見；整體的變更 `git diff origin/<dev 分支>`
+    - 退回修改（已在本機 commit、還沒 push）：本輪全部的變更 `git diff origin/<子 issue 分支>`；本機的每一個 commit 逐一 `git show <hash>`，確認每個 commit 只包含它對應的那一條意見；整體的變更 `git diff origin/<dev 分支>`
 
 reviewer 提出「必須修正」時，交回 implementer 修正，再重新經過 tester 與 reviewer，直到沒有必須修正的問題：
 
@@ -98,7 +98,7 @@ reviewer 提出「必須修正」時，交回 implementer 修正，再重新經�
     - 只有一種性質時一個 commit 即可；同一種性質但目的不同時也要拆開
     - **不規定先後順序**：依當下最適合的方式排序，並寫出排序理由；排出來的順序必須讓每個 commit 都能單獨通過驗證（第 6 步 4）
     - 退回修改時：每一條修改意見各自一個（或一組）commit，**每改完一條就 commit**（在第 5 步中進行），全部 commit 完、reviewer 審查之後才 push
-    - 決定本輪的**基準**（每一次 push 就是一輪）：分支還沒 push 過時，是開分支時 dev 分支的 commit（「🤖 開始開發」留言中的基準）；之後的每一次 push（包含退回修改、第 7 步 2 CI 失敗後的修正），一律是 push 之前的 `origin/<分支名稱>`（`git log -1 --format=%h origin/<分支名稱>`）
+    - 決定本輪的**基準**（每一次 push 就是一輪）：分支還沒 push 過時，是開分支時 dev 分支的 commit（「🤖 開始開發」留言中的基準）；之後的每一次 push（包含退回修改、第 7 步 2 CI 失敗後的修正），一律是 push 之前的 `origin/<子 issue 分支>`（`git log -1 --format=%h origin/<子 issue 分支>`）
 2. **分批 commit**：每個 commit 的訊息先存成暫存檔，標題結尾引用 `(#$ARGUMENTS)`，**內文必填**「改了什麼」「為什麼」，並加一行「順序：本輪第 k 個，基準 <hash>」
 
     ```
@@ -108,12 +108,12 @@ reviewer 提出「必須修正」時，交回 implementer 修正，再重新經�
 
     不用 `git add -A` 或 `git add .`
 3. 確認：`git status` 沒有遺漏的檔案；`git log --format="%h %s" origin/<dev 分支>..HEAD` 的順序與規劃相同
-4. **逐一驗證每個 commit**（tester；第一次開發在 commit 之後，退回修改在 reviewer 審查之後）：tester 用 `git switch --detach <hash>` 逐一切到本輪的每個 commit，執行格式檢查與受影響範圍的建置、測試，記錄每個 commit 的結果，完成後 `git switch <分支名稱>` 切回。有 commit 沒通過時，先把 tester 的結果以「🤖 逐一驗證結果（Claude tester）」留言（已經有 PR 時留言到 PR，還沒有 PR 時留言到子 issue）、取得連結，再交回 implementer 修正並**新增修正 commit**（不改寫），「為什麼」引用這則留言，再從第 6 步 3 重新確認與驗證
+4. **逐一驗證每個 commit**（tester；第一次開發在 commit 之後，退回修改在 reviewer 審查之後）：tester 用 `git switch --detach <hash>` 逐一切到本輪的每個 commit，執行格式檢查與受影響範圍的建置、測試，記錄每個 commit 的結果，完成後 `git switch <子 issue 分支>` 切回。有 commit 沒通過時，先把 tester 的結果以「🤖 逐一驗證結果（Claude tester）」留言（已經有 PR 時留言到 PR，還沒有 PR 時留言到子 issue）、取得連結，再交回 implementer 修正並**新增修正 commit**（不改寫），「為什麼」引用這則留言，再從第 6 步 3 重新確認與驗證
     - 失敗的 commit，以及它之後、修正之前因同一個原因失敗的 commit，在「## Commits」的「單獨驗證」欄標示「❌（由 <修正 commit> 修正）」
     - tester 重新驗證時，只驗證上次驗證之後新增的 commit，並確認最後一個 commit 通過；已標示 ❌ 且有修正 commit 的，不再阻擋整輪
     - push 前，最後一次審查之後新增的 commit（包含這裡的修正 commit），都要再交給 reviewer（第 5 步 3），只審查新增的 commit
 5. 把 commit 規劃寫進開發回報的「## Commits」（退回修改時寫進修改回報的「## Commits」）：範圍（基準 → 第一個 → 最後一個，附 compare 連結）、每個 commit 的順序、hash、標題、為什麼、單獨驗證的結果（第 6 步 4），以及排序理由（格式見 `CLAUDE.md`「回報與 PR」）
-6. push 自己的分支：`git push -u origin <分支名稱>`
+6. push 自己的分支：`git push -u origin <子 issue 分支>`
 - **不**改寫已 push 的 commit（不 amend、不 rebase、不 force push）
 - **不** push 到 `main` 或任何 `dev/*` 分支、**不** merge、**不**關閉 issue
 
@@ -126,7 +126,7 @@ reviewer 提出「必須修正」時，交回 implementer 修正，再重新經�
     - **第一次完成**：開 PR **到 dev 分支**，內容為「開發回報」（第一行 `Closes #$ARGUMENTS`，含「## Commits」；「## 驗證」的 CI 一列寫「見 PR 留言『🤖 CI 結果』」，不寫「之後另外留言」）
 
         ```
-        gh pr create --repo <repo> --base <dev 分支> --head <分支名稱> --title "<commit 格式的標題>" --body-file <暫存檔>
+        gh pr create --repo <repo> --base <dev 分支> --head <子 issue 分支> --title "<commit 格式的標題>" --body-file <暫存檔>
         ```
 
         開完後用 `gh pr view <PR 編號> --repo <repo> --json baseRefName` 確認目標分支是 `<dev 分支>`，**不是 `main`**

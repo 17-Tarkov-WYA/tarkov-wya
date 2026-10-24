@@ -82,7 +82,7 @@
 
 - **第一次開發**：先審查、再 commit
 - **退回修改**：每條意見改完就在本機 commit（一條意見一個或一組 commit），全部改完、**push 之前**再交給 reviewer。reviewer 要看：
-    - 本輪全部的變更：`git diff origin/<自己的分支>`
+    - 本輪全部的變更：`git diff origin/<子 issue 分支>`
     - 本機的每一個 commit：逐一 `git show <hash>`，確認每個 commit 只包含它對應的那一條意見
     - 整體的變更：`git diff origin/<dev 分支>`
 - reviewer 提出必須修正時，**新增修正 commit**，不改寫既有的 commit（不 amend、不 rebase）；「為什麼」寫出 reviewer 的哪一條意見，以及它對應的 PR 意見

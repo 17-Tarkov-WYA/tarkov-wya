@@ -128,6 +128,15 @@ milestone 對應 [`roadmap.md`](roadmap.md) 的開發階段，目標與子 issue
 
 決策依據見 [`decisions/0009`](decisions/0009-development-conventions.md)、[`decisions/0011`](decisions/0011-goals-and-status.md)、[`decisions/0012`](decisions/0012-traceable-development.md)。
 
+### 用語表
+
+文件與指令中的分支一律用以下寫法：
+
+| 寫法 | 指的是 | 命名 |
+|---|---|---|
+| `<dev 分支>` | 目標的 dev 分支 | `dev/<目標編號>-<簡短英文說明>` |
+| `<子 issue 分支>` | 子 issue 分支 | `<類型>/<子 issue 編號>-<簡短英文說明>` |
+
 ### 分支結構
 
 ```
@@ -161,7 +170,7 @@ main ─────────────────────────
 
 | 情況 | 分支 |
 |---|---|
-| 第一次開發（`status:ready`） | 從**最新的 `origin/<目標的 dev 分支>`** 開新的子 issue 分支 |
+| 第一次開發（`status:ready`） | 從**最新的 `origin/<dev 分支>`** 開新的子 issue 分支 |
 | 退回修改（`status:changes-requested`） | 沿用 issue 留言「🤖 開始開發」中記錄的分支，**不開新分支** |
 | 有依賴 | 依賴必須先合併到 dev 分支（issue 已關閉），所以一律從 dev 分支開；**不從其他子 issue 的分支開** |
 | 目標的 dev 分支不存在、或沒有上層目標 | **不開始開發**，改為 `status:blocked` 並留言說明 |
