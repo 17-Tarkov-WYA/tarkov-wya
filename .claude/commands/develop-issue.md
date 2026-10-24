@@ -74,8 +74,8 @@ argument-hint: <子 issue 編號>
 
 | 情況 | 順序 |
 |---|---|
-| 第一次開發 | implementer → tester → reviewer → 第 6 步 commit |
-| 退回修改 | implementer 每改完一條意見，就依第 6 步 1～3 在本機 commit（一條意見一個或一組 commit）→ 全部意見改完後 tester → reviewer（push 之前）→ 第 6 步 push |
+| 第一次開發 | implementer → tester → reviewer → 第 6 步 commit → 第 6 步逐一驗證每個 commit → 第 6 步 push |
+| 退回修改 | implementer 每改完一條意見，就依第 6 步 1～3 在本機 commit（一條意見一個或一組 commit）→ 全部意見改完後 tester → reviewer（push 之前）→ 第 6 步逐一驗證每個 commit → 第 6 步 push |
 
 1. **implementer**：實作（退回修改時，只依 PR 上的修改意見修改，一次一條）；完成時依內容性質分組回報修改的檔案與理由，第 6 步據此拆分 commit
 2. **tester**：依完成條件與驗證方式實際執行並記錄結果
@@ -95,9 +95,10 @@ reviewer 提出「必須修正」時，交回 implementer 修正，再重新經�
 1. **先規劃 commit**：依 implementer 依性質分組的回報，決定每個 commit 的性質、類型、包含的檔案與目的
     - 一個 commit 只包含一種性質：設定與建置（`chore`）、程式邏輯（`feat`／`fix`／`refactor`）、UI（`feat`／`fix`，摘要寫出是 UI）、驗證實驗的程式與紀錄（`exp`）、測試（`test`）、文件（`docs`）
     - 只有一種性質時一個 commit 即可；同一種性質但目的不同時也要拆開
-    - 順序依「被依賴的先 commit」：設定 → 程式 → UI → 測試 → 文件
+    - **不規定先後順序**：依當下最適合的方式排序，並寫出排序理由；排出來的順序必須讓每個 commit 都能單獨通過驗證（第 4 步）
     - 退回修改時：每一條修改意見各自一個（或一組）commit，**每改完一條就 commit**（在第 5 步中進行），全部 commit 完、reviewer 審查之後才 push
-2. **分批 commit**：每個 commit 的訊息先存成暫存檔，標題結尾引用 `(#$ARGUMENTS)`，**內文必填**「改了什麼」「為什麼」
+    - 決定本輪的**基準**：第一次開發是開分支時 dev 分支的 commit（「🤖 開始開發」留言中的基準）；退回修改是 PR 上最後一次 push 的 commit（`git rev-parse --short origin/<分支名稱>`）
+2. **分批 commit**：每個 commit 的訊息先存成暫存檔，標題結尾引用 `(#$ARGUMENTS)`，**內文必填**「改了什麼」「為什麼」，最後一行寫「順序：本輪第 k 個，基準 <hash>」（修正 commit 也依 commit 的先後接著編號）
 
     ```
     git add <這個 commit 的檔案>
@@ -105,9 +106,10 @@ reviewer 提出「必須修正」時，交回 implementer 修正，再重新經�
     ```
 
     不用 `git add -A` 或 `git add .`
-3. 確認：`git status` 沒有遺漏的檔案；`git log --format="%h %s" origin/<dev 分支>..HEAD` 的順序與規劃相同
-4. 把 commit 規劃（hash、標題、為什麼）寫進開發回報的「## Commits」；退回修改時寫進修改回報的「改了什麼」
-5. push 自己的分支：`git push -u origin <分支名稱>`
+3. 確認：`git status` 沒有遺漏的檔案；`git log --format="%h %s" <基準>..HEAD` 的順序與規劃相同
+4. **逐一驗證每個 commit**（tester；第一次開發在 commit 之後，退回修改在 reviewer 審查之後）：tester 用 `git switch --detach <hash>` 逐一切到本輪的每個 commit，執行格式檢查與受影響範圍的建置、測試，記錄每個 commit 的結果，完成後 `git switch <分支名稱>` 切回。有 commit 沒通過時，交回 implementer 修正並**新增修正 commit**（不改寫），再從第 3 步重新確認與驗證
+5. 把 commit 規劃寫進開發回報的「## Commits」（退回修改時寫進修改回報的「## Commits」）：範圍（基準 → 第一個 → 最後一個，附 compare 連結）、每個 commit 的順序、hash、標題、為什麼、單獨驗證的結果，以及排序理由（格式見 `CLAUDE.md`「回報與 PR」）
+6. push 自己的分支：`git push -u origin <分支名稱>`
 - **不**改寫已 push 的 commit（不 amend、不 rebase、不 force push）
 - **不** push 到 `main` 或任何 `dev/*` 分支、**不** merge、**不**關閉 issue
 

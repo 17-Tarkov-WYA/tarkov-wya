@@ -73,7 +73,10 @@
     - 測試 → `test`
     - 文件（README、`docs/`、`CLAUDE.md`、`.claude/` 中的說明）→ `docs`
 - 只有一種性質時一個 commit 即可；同一種性質但目的不同時也要拆開
-- 依「被依賴的先 commit」排序（設定 → 程式 → UI → 測試 → 文件），讓每個 commit 都盡量可以建置
+- **不規定先後順序**：上面只說明有哪些性質，順序依當下最適合的方式決定，但必須做到（[`docs/decisions/0012`](docs/decisions/0012-traceable-development.md)）：
+    - **每個 commit 單獨都能通過驗證**：commit 之後，tester 逐一切到每個 commit（`git switch --detach <hash>`），執行格式檢查與受影響範圍的建置、測試並記錄結果，完成後切回子 issue 分支。第一次開發是「審查 → commit → 逐一驗證」；退回修改是「commit → 審查 → 逐一驗證」；有 commit 沒通過就加修正 commit，不改寫
+    - **排序有理由**：commit 規劃寫出順序與為什麼這樣排，寫進開發回報的「## Commits」（退回修改寫進修改回報）
+    - **看得出頭尾**：每個 commit 內文加一行「順序：本輪第 k 個，基準 <hash>」（第一次開發的基準是開分支時 dev 分支的 commit；退回修改的基準是 PR 上最後一次 push 的 commit）；回報與留言寫出範圍與 compare 連結（格式見「回報與 PR」）。commit 內文寫不了尾，尾以回報與留言為準
 - commit 前先規劃每個 commit 包含哪些檔案與目的，再用 `git add <檔案>` 分批 commit；不用 `git add -A` 或 `git add .`
 - 退回修改時，每一條修改意見各自一個（或一組）commit，「為什麼」寫出對應的意見；不改寫已 push 的 commit
 - **審查的時機**（[`docs/decisions/0012`](docs/decisions/0012-traceable-development.md)）：
@@ -89,6 +92,8 @@
 
     為什麼：
     - <來源與原文：issue「完成條件」或「要做什麼」的原文／PR 留言第幾條（附留言連結）／reviewer 意見的原文>
+
+    順序：本輪第 <k> 個，基準 <hash>
     ```
 
 - **每一處變更都要有依據，不可以推測**（[`docs/decisions/0012`](docs/decisions/0012-traceable-development.md)）：
@@ -126,7 +131,7 @@
 | 角色 | 負責 | 可以修改檔案 |
 |---|---|---|
 | `implementer` | 依 issue 撰寫程式、測試與文件 | 是 |
-| `tester` | 依完成條件與驗證方式實際執行並記錄結果 | 否 |
+| `tester` | 依完成條件與驗證方式實際執行並記錄結果；commit 之後逐一驗證每個 commit | 否 |
 | `reviewer` | 對照 issue、本檔案、開發風格與決策紀錄審查變更 | 否 |
 
 reviewer 提出「必須修正」時，交回 implementer，直到沒有必須修正的問題。第一次開發時，reviewer 審查還沒 commit 的變更；退回修改時，reviewer 在 push 前審查已在本機 commit 的變更（見「分支與 commit」的「審查的時機」）。
@@ -140,6 +145,7 @@ reviewer 要逐個 commit 確認：diff 中的**每一處**變更，都能對應
 - **格式**：`editorconfig-checker`（所有語言；CI 的「格式檢查」會執行同樣的檢查）
 - **建置與測試**：受影響的 app／套件資料夾中 `CLAUDE.md` 所列的驗證指令
 - issue「驗證方式」欄位列出的項目
+- **每個 commit 單獨驗證**：commit 之後、push 之前，tester 逐一切到本輪的每個 commit，執行格式檢查與受影響範圍的建置、測試，記錄每個 commit 的結果（見「分支與 commit」）
 - **CI**：開 PR（或修改後 push）之後執行 `gh pr checks <PR 編號> --repo 17-Tarkov-WYA/tarkov-wya --watch`，等所有檢查結束；CI 還在執行時不能寫「通過」，也不能寫「之後另外留言」
 
 ## 回報與 PR
@@ -174,9 +180,13 @@ issue 上另有「🤖 完成條件確認（Claude）」留言。
 - <檔案或模組>：<說明>
 
 ## Commits
-| commit | 標題 | 為什麼 |
-|---|---|---|
-| <hash> | <commit 標題> | <commit 內文「為什麼」的摘要> |
+範圍：基準 <hash> → 第一個 <hash> → 最後一個 <hash>（比較：https://github.com/17-Tarkov-WYA/tarkov-wya/compare/<基準>...<最後一個>）
+
+| 順序 | commit | 標題 | 為什麼 | 單獨驗證 |
+|---|---|---|---|---|
+| 1 | <hash> | <commit 標題> | <commit 內文「為什麼」的摘要> | ✅ 通過／❌ 失敗 |
+
+排序理由：<為什麼這樣排>
 
 ## 驗證
 | 項目 | 指令 | 結果 |
@@ -190,7 +200,7 @@ issue 上另有「🤖 完成條件確認（Claude）」留言。
 - <問題；沒有就寫「無」>
 
 ## 分支
-`<分支名稱>`（最後 commit：<hash>）
+`<分支名稱>`（基準 <hash>，最後 commit：<hash>）
 ```
 
 **修改回報**（PR 留言）：
@@ -203,6 +213,15 @@ issue 上另有「🤖 完成條件確認（Claude）」留言。
 
 ## 改了什麼
 - <對應每一項要求的修改>（commit <hash>）
+
+## Commits
+範圍：基準 <hash> → 第一個 <hash> → 最後一個 <hash>（比較：https://github.com/17-Tarkov-WYA/tarkov-wya/compare/<基準>...<最後一個>）
+
+| 順序 | commit | 標題 | 為什麼 | 單獨驗證 |
+|---|---|---|---|---|
+| 1 | <hash> | <commit 標題> | <commit 內文「為什麼」的摘要> | ✅ 通過／❌ 失敗 |
+
+排序理由：<為什麼這樣排>
 
 ## 驗證
 | 項目 | 指令 | 結果 |
@@ -218,7 +237,7 @@ issue 上另有「🤖 完成條件確認（Claude）」留言。
 ```markdown
 🤖 CI 結果（Claude）
 
-最後 commit：<hash>
+範圍：基準 <hash> → 第一個 <hash> → 最後一個 <hash>（比較：https://github.com/17-Tarkov-WYA/tarkov-wya/compare/<基準>...<最後一個>）
 
 | 檢查 | 結果 |
 |---|---|
@@ -246,7 +265,9 @@ issue 上另有「🤖 完成條件確認（Claude）」留言。
 ```markdown
 🤖 完成條件確認（Claude）
 
-PR：#<PR 編號>（合併到 `<dev 分支>`）　最後 commit：<hash>　CI：通過
+PR：#<PR 編號>（合併到 `<dev 分支>`）　CI：通過
+
+範圍：基準 <hash> → 第一個 <hash> → 最後一個 <hash>（比較：https://github.com/17-Tarkov-WYA/tarkov-wya/compare/<基準>...<最後一個>）
 
 - ✅ <完成條件原文>：<如何確認>
 - ❌ <完成條件原文>：<原因>

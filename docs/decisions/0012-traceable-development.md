@@ -28,7 +28,13 @@
 | 文件 | README、`docs/`、`CLAUDE.md`、`.claude/` 中的說明 | `docs` |
 
 - 只有一種性質時，一個 commit 即可；同一種性質但目的不同時，也要拆開
-- 依「被依賴的先 commit」排序（例如設定 → 程式 → UI → 測試 → 文件），讓每個 commit 都盡量可以建置
+- **不規定先後順序**：上表只說明有哪些性質。順序由 Claude 依當下最適合的方式決定，但必須做到：
+    - **每個 commit 單獨都能通過驗證**：commit 之後，tester 逐一切到每個 commit（`git switch --detach <hash>`），執行格式檢查與受影響範圍的建置、測試，記錄每個 commit 的結果，完成後切回子 issue 分支。第一次開發是「審查 → commit → 逐一驗證」；退回修改是「commit → 審查 → 逐一驗證」；有 commit 沒通過就加修正 commit，不改寫
+    - **排序有理由**：commit 規劃寫出順序與為什麼這樣排，寫進開發回報的「## Commits」（退回修改寫進修改回報）
+    - **看得出頭尾**：
+        - 每個 commit 內文加一行「順序：本輪第 k 個，基準 <hash>」。第一次開發的基準是開分支時 dev 分支的 commit；退回修改的基準是 PR 上最後一次 push 的 commit
+        - 開發回報、修改回報、CI 結果、完成條件確認都寫出範圍「基準 <hash> → 第一個 <hash> → 最後一個 <hash>」，並附 compare 連結 https://github.com/17-Tarkov-WYA/tarkov-wya/compare/<基準>...<最後一個>
+        - commit 內文寫不了尾（寫的時候後面的 commit 還不存在，也不能改寫），尾以回報與留言為準
 
 ### commit 訊息內文必填
 
@@ -42,6 +48,8 @@
 
 為什麼：
 - <來源與原文：issue「完成條件」或「要做什麼」的原文／PR 留言第幾條（附留言連結）／reviewer 意見的原文>
+
+順序：本輪第 <k> 個，基準 <hash>
 ```
 
 - 退回修改時，每一條修改意見各自一個（或一組）commit，「為什麼」寫出對應的意見
@@ -103,7 +111,7 @@ dev 分支合併到 `main` 後**不刪除**：ruleset 禁止刪除 `dev/**`，�
 
 - 使用者要能從 git 歷史追蹤每一部分改了什麼、為什麼改；依性質拆分後，看 commit 就知道設定、程式、文件各自的變更
 - 壓成一個 commit 的合併方式會把拆好的 commit 合成一個，所以子 issue 也改用 merge commit；`git log --first-parent` 仍能看到一個子 issue 一個合併點，不會失去「一個子 issue 一個單位」的好處
-- 「被依賴的先 commit」讓每個 commit 盡量可以建置，之後要找出問題出在哪個 commit 比較容易
+- 不規定固定順序，由當下判斷最適合的排法；改以「每個 commit 單獨都能通過驗證」確認排出來的順序可行，並以 commit 內文的「順序」與回報中的範圍看出每一輪的頭尾（PR #10 第二輪意見第 3 條 https://github.com/17-Tarkov-WYA/tarkov-wya/pull/10#issuecomment-6384650208 ）。每個 commit 都能單獨通過驗證，之後要找出問題出在哪個 commit 也比較容易
 - 退回修改時，多條意見常常改到同一個檔案；commit 以檔案為單位，又不能用互動式的 `git add -p`，所以「一條意見一個 commit」和「先審查、再 commit」無法同時做到（PR #10 的「🤖 修改回報」 https://github.com/17-Tarkov-WYA/tarkov-wya/pull/10#issuecomment-6384501111 ）。使用者選擇保留一條意見一個 commit，把審查移到 push 之前（PR #10 第二輪意見第 1 條 https://github.com/17-Tarkov-WYA/tarkov-wya/pull/10#issuecomment-6384650208 ）
 - CI 通常要幾分鐘，開 PR 後馬上檢查只會看到「執行中」；等結束再回報，使用者看到 `status:review` 時就能直接審核
 - 考慮過讓 Claude 在 issue 內容的完成條件上打勾：使用者寫的原始需求會被修改，也分不出是誰確認的，所以改為另外留言；留言保留每一次的確認紀錄，退回修改後也看得出前後差異

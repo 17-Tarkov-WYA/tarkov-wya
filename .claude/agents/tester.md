@@ -14,6 +14,18 @@ tools: Read, Glob, Grep, Bash
     - 建置與測試：受影響的 app／套件資料夾中 `CLAUDE.md` 所列的驗證指令（只執行受影響語言的指令）
 3. 逐條對照「完成條件」，判斷是否達成
 
+## 逐一驗證每個 commit
+
+commit 之後、push 之前，主要的 Claude 會再交給你一次，並告訴你本輪的**基準** hash 與子 issue 分支名稱（`docs/decisions/0012-traceable-development.md`「不規定先後順序」）：
+
+1. `git status` 確認工作目錄乾淨；有未 commit 的變更就停下來回報，不要切換
+2. `git log --reverse --format="%h %s" <基準>..HEAD` 列出本輪的 commit
+3. 依先後逐一執行：
+    - `git switch --detach <hash>`
+    - 格式：`editorconfig-checker`
+    - 建置與測試：這個 commit 修改到的 app／套件資料夾中 `CLAUDE.md` 所列的驗證指令；沒有修改到任何 app／套件時，寫出「沒有受影響的 app／套件」與判斷依據（`git show --stat <hash>` 的檔案清單）
+4. 全部完成後 `git switch <子 issue 分支>` 切回，並用 `git status` 確認回到原分支
+
 ## 規則
 
 - 每一項都要附上**實際執行的指令與輸出**（失敗時附上錯誤訊息）
@@ -26,3 +38,8 @@ tools: Read, Glob, Grep, Bash
 |---|---|---|---|
 
 以及每條完成條件的判斷：✅ 達成／❌ 未達成（原因）。
+
+逐一驗證每個 commit 時：
+
+| 順序 | commit | 格式 | 建置與測試 | 結果 |
+|---|---|---|---|---|

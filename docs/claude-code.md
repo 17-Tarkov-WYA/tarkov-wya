@@ -103,7 +103,7 @@ repo 的 **Settings → Rules → Rulesets → New branch ruleset**：
     /develop-issue <子 issue 編號>
     ```
 
-Claude 會依序：確認狀態、上層目標、dev 分支與依賴 → 讀取子 issue、目標與相關文件 → 從 dev 分支開出子分支 → 留言「🤖 開始開發（Claude）」並改為 `status:in-progress` → implementer 實作 → tester 驗證 → reviewer 審查 → 依內容性質分批 commit（每個 commit 內文寫出改了什麼與為什麼）並 push 分支 → **開 PR 到 dev 分支**（內容為「🤖 開發回報（Claude）」，第一行 `Closes #<編號>`）→ 等 CI 結束，在 PR 留言「🤖 CI 結果（Claude）」→ 在子 issue 留言「🤖 完成條件確認（Claude）」→ 改為 `status:review`。
+Claude 會依序：確認狀態、上層目標、dev 分支與依賴 → 讀取子 issue、目標與相關文件 → 從 dev 分支開出子分支 → 留言「🤖 開始開發（Claude）」並改為 `status:in-progress` → implementer 實作 → tester 驗證 → reviewer 審查 → 依內容性質分批 commit（每個 commit 內文寫出改了什麼、為什麼與順序）→ tester 逐一驗證每個 commit → push 分支 → **開 PR 到 dev 分支**（內容為「🤖 開發回報（Claude）」，第一行 `Closes #<編號>`）→ 等 CI 結束，在 PR 留言「🤖 CI 結果（Claude）」→ 在子 issue 留言「🤖 完成條件確認（Claude）」→ 改為 `status:review`。
 
 所以看到 `status:review` 時，CI 已經結束，可以直接審核。
 
