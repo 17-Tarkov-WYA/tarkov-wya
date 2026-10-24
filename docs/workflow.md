@@ -198,7 +198,7 @@ main ─────────────────────────
 - <檔案或模組>：<變更>
 
 為什麼：
-- <來源與原文：issue「完成條件」或「要做什麼」的原文／PR 留言第幾條（附留言連結）／reviewer 意見的原文>
+- <來源（5 類之一，見 decisions/0012「每一處變更都要有依據」）與原文>
 
 順序：本輪第 <k> 個，基準 <hash>
 ```
@@ -206,7 +206,7 @@ main ─────────────────────────
 - **類型**：同「子 issue 分支的類型」表（`feat`、`fix`、`exp`、`chore`、`refactor`、`docs`），另加 `test`（只改測試）
 - **範圍**：`planner`、`client`、`map`、`server`、`protocol`、`game-data`、`repo`（跨多個範圍或整個 repo）、`docs`
 - **摘要**：50 字以內，描述做了什麼，不加句號
-- **內文必填**：「改了什麼」與「為什麼」兩段都要寫；「為什麼」必須引用可以查證的來源，不可以推測（[`decisions/0012`](decisions/0012-traceable-development.md)「每一處變更都要有依據」）
+- **內文必填**：「改了什麼」與「為什麼」兩段都要寫；「為什麼」必須引用可以查證的來源（子 issue／目標 issue、PR 留言、reviewer 審查結果、tester 驗證結果／CI 結果、repo 中的文件，共 5 類），不可以推測（[`decisions/0012`](decisions/0012-traceable-development.md)「每一處變更都要有依據」）
 - 可以有多個 commit 對應同一個 issue
 
 範例：

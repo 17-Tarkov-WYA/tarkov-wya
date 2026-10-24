@@ -25,7 +25,7 @@ tools: Read, Write, Edit, Glob, Grep, Bash
 
 - 修改或新增的檔案，**依內容性質分組**列出（主要的 Claude 會據此拆分 commit，規則見 `docs/decisions/0012-traceable-development.md`）：
 
-    | 性質 | 檔案 | 改了什麼 | 為什麼（來源與原文：issue「完成條件」或「要做什麼」的原文／PR 留言第幾條與連結／reviewer 意見的原文） |
+    | 性質 | 檔案 | 改了什麼 | 為什麼（來源與原文；5 類來源見 0012「每一處變更都要有依據」） |
     |---|---|---|---|
     | 設定與建置 | | | |
     | 程式邏輯 | | | |
