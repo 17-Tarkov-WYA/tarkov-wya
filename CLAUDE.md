@@ -85,6 +85,7 @@
     - 第一次開發：先審查、再 commit
     - 退回修改：每條意見改完就在本機 commit，全部改完、**push 之前**再交給 reviewer；reviewer 提出必須修正時，**新增修正 commit**（不 amend、不 rebase），「為什麼」寫出 reviewer 的哪一條意見，以及它對應的 PR 意見
     - push 前，最後一次審查之後新增的 commit（包含逐一驗證失敗後的修正 commit），都要再交給 reviewer，只審查新增的 commit
+    - reviewer 意見的 commit 拆分：必須修正（M）一條一個 commit，同一個根本原因造成的多條可以合併，「為什麼」列出所有編號；建議（S）可以合成一個「處理審查建議」的 commit，「為什麼」逐一列出編號
 - **commit 內文必填**（內容先存成暫存檔，再用 `git commit -F <暫存檔>`）：
 
     ```
