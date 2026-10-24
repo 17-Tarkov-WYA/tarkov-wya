@@ -275,7 +275,7 @@ issue 上另有「🤖 完成條件確認（Claude）」留言。
 - 無法修正時（需要使用者決定、資訊不足）：在 PR 留言「🤖 CI 結果（Claude）」說明原因，在子 issue 留言並改為 `status:blocked`；子 issue 的留言要註明「已有 PR，處理後請改為 `status:changes-requested`」（沿用既有分支與 PR，不要改回 `status:ready`）
 - 全部通過後才進行下一步，所以「完成條件確認」中的 CI 一律是「通過」
 
-**審查結果、逐一驗證結果**（留言到 PR 時使用以下標題與格式；只在結果需要被修正 commit 引用時發布，照 reviewer／tester 回報的內容）：
+**審查結果、逐一驗證結果**（PR 與子 issue 的留言都使用以下格式；標題「🤖 審查結果（Claude reviewer）」「🤖 逐一驗證結果（Claude tester）」只在留言到 PR 時使用，子 issue 留言的標題尚未規定；只在結果需要被修正 commit 引用時發布，照 reviewer／tester 回報的內容）：
 
 ```markdown
 🤖 審查結果（Claude reviewer）
