@@ -1,13 +1,13 @@
 # 開發流程 (Workflow)
 
-本專案以 **issue 驅動開發**：大的方向寫成「目標」issue，並開一個對應的 **dev 分支**；目標拆成多個子 issue 交給 Claude 開發，子 issue 的 PR 合併到 dev 分支；全部完成後，使用者把 dev 分支合併到 `main` 並關閉目標。決策依據見 [`decisions/0007`](decisions/0007-development-workflow.md)、[`decisions/0011`](decisions/0011-goals-and-status.md)。
+本專案以 **issue 驅動開發**：大的方向寫成「目標」issue，並開一個對應的 **dev 分支**；目標拆成多個子 issue 交給 Claude 開發，子 issue 的 PR 合併到 dev 分支；全部完成後，使用者把 dev 分支合併到 `main` 並關閉目標。決策依據見 [`decisions/0007`](decisions/0007-development-workflow.md)、[`decisions/0011`](decisions/0011-goals-and-status.md)、[`decisions/0012`](decisions/0012-traceable-development.md)。
 
 ```mermaid
 flowchart LR
     D["💬 討論<br/>結論寫進 docs/"] --> G["🎯 使用者建立目標 issue<br/>＋ dev 分支"]
     G --> S["📝 使用者建立<br/>子 issue<br/>status:ready"]
     S --> A["🤖 Claude 開發<br/>status:in-progress"]
-    A --> R["🔀 Claude 開 PR → dev 分支<br/>內容為開發回報<br/>status:review"]
+    A --> R["🔀 Claude 開 PR → dev 分支<br/>內容為開發回報<br/>等 CI 結束並留言後<br/>status:review"]
     R --> U{"👤 使用者在 PR 審核"}
     U -->|需要修改<br/>status:changes-requested| A
     U -->|通過| P["✅ 使用者合併到 dev 分支<br/>子 issue 自動關閉"]
@@ -21,8 +21,8 @@ flowchart LR
 | 1. 討論 | 使用者＋Claude | 討論開發方向；結論寫成 [決策紀錄](decisions) 或更新 `docs/` |
 | 2. 建目標 | 使用者 | 用「🎯 目標」範本建立目標 issue，並從 `main` 開出對應的 dev 分支 |
 | 3. 建子 issue | 使用者 | 在目標 issue 下建立子 issue，規格寫完後加上 `status:ready` |
-| 4. 開發 | 另一個 Claude（agent team） | `/develop-issue <編號>`：從 dev 分支開出子分支開發，完成後開 PR 到 dev 分支，PR 內容就是開發回報 |
-| 5. 審核 | 使用者 | 在 PR 頁面檢查回報、差異與 CI；通過就合併到 dev 分支，需要修改就退回 |
+| 4. 開發 | 另一個 Claude（agent team） | `/develop-issue <編號>`：從 dev 分支開出子分支開發，依內容拆分 commit，完成後開 PR 到 dev 分支，PR 內容就是開發回報；等 CI 結束，在 PR 留言 CI 結果、在子 issue 留言完成條件確認 |
+| 5. 審核 | 使用者 | 在 PR 頁面檢查回報、commit、差異與 CI；通過就合併到 dev 分支，需要修改就退回 |
 | 6. 完成目標 | 使用者 | 子 issue 全部關閉後做最後審核，把 dev 分支合併到 `main`，目標 issue 隨之關閉 |
 
 > Claude 可以開 PR，但**不能合併**：它的 token 沒有程式碼內容（Contents）的寫入權限，合併只有使用者能做。Claude 的 PR 一律以目標的 dev 分支為目標，**不會直接合併到 `main`**。
@@ -64,12 +64,13 @@ flowchart LR
 stateDiagram-v2
     [*] --> ready: 使用者寫完規格
     ready --> in_progress: Claude 開始開發
-    in_progress --> review: Claude 開 PR／修改後回報
+    in_progress --> review: Claude 開 PR／修改後回報，CI 結束並留言後
     review --> changes_requested: 使用者退回
     changes_requested --> in_progress: Claude 接手修改
     review --> [*]: 使用者合併 PR 到 dev 分支（issue 關閉）
     in_progress --> blocked: 依賴未完成或需要決定
-    blocked --> ready: 使用者排除問題
+    blocked --> ready: 使用者排除問題（還沒有 PR）
+    blocked --> changes_requested: 使用者排除問題（已有 PR）
 ```
 
 | 標籤 | 意思 | 誰加上 | Claude 可以接手？ |
@@ -77,7 +78,7 @@ stateDiagram-v2
 | （沒有狀態標籤） | 規格還在撰寫 | — | 否 |
 | `status:ready` | 規格完成，可以開發 | 使用者 | **是** |
 | `status:in-progress` | Claude 開發中 | Claude | 否（已被取走） |
-| `status:review` | 已開 PR（或已在 PR 回報修改），等待使用者審核 | Claude | 否 |
+| `status:review` | 已開 PR（或已在 PR 回報修改），CI 已結束，等待使用者審核 | Claude | 否 |
 | `status:changes-requested` | 使用者退回，需要修改 | 使用者 | **是**（在原分支上修改） |
 | `status:blocked` | 依賴未完成或需要使用者決定（附留言說明） | 任一方 | 否 |
 | `status:paused` | 暫停中的範圍（例如 map、server） | 使用者 | 否 |
@@ -96,6 +97,10 @@ stateDiagram-v2
 | 哪些可以交給 Claude | [`label:status:ready`](https://github.com/17-Tarkov-WYA/tarkov-wya/issues?q=is%3Aopen+label%3Astatus%3Aready) |
 | 等我合併的 PR | [Pull requests](https://github.com/17-Tarkov-WYA/tarkov-wya/pulls) |
 | 某個 issue 的分支與經過 | issue 留言「🤖 開始開發」；開發回報在 issue 連結的 PR 中 |
+| 某個 issue 的完成條件驗證到哪裡 | 子 issue 留言「🤖 完成條件確認（Claude）」：逐條標示 ✅ 已完成／❌ 未完成／👤 需要使用者確認；退回修改後會有新的一則，以最新的為準 |
+| 某個 PR 的 CI 結果 | PR 留言「🤖 CI 結果（Claude）」，或 PR 的 **Checks** 分頁 |
+
+> 「🤖 完成條件確認」是 Claude 自己驗證的結果，**不代表使用者已驗收**；合併 PR 才是使用者的審核結果。issue 內容（使用者寫的原始需求）Claude 不會修改。
 
 ## 4. Labels
 
@@ -121,7 +126,7 @@ milestone 對應 [`roadmap.md`](roadmap.md) 的開發階段，目標與子 issue
 
 ## 6. 分支與 commit
 
-決策依據見 [`decisions/0009`](decisions/0009-development-conventions.md)、[`decisions/0011`](decisions/0011-goals-and-status.md)。
+決策依據見 [`decisions/0009`](decisions/0009-development-conventions.md)、[`decisions/0011`](decisions/0011-goals-and-status.md)、[`decisions/0012`](decisions/0012-traceable-development.md)。
 
 ### 分支結構
 
@@ -162,34 +167,74 @@ main ─────────────────────────
 | 目標的 dev 分支不存在、或沒有上層目標 | **不開始開發**，改為 `status:blocked` 並留言說明 |
 | 開發中 dev 分支前進了 | 不自行 merge 或 rebase；有衝突時在回報中說明，由使用者處理 |
 
+### commit 的拆分
+
+一個 commit 只包含一種**內容性質**（[`decisions/0012`](decisions/0012-traceable-development.md)）：
+
+| 性質 | 內容 | 類型 |
+|---|---|---|
+| 設定與建置 | 專案檔、相依套件、`.editorconfig`、CI、`.gitignore` 等 | `chore` |
+| 程式邏輯 | 程式碼 | `feat`／`fix`／`refactor` |
+| UI | XAML、版面、UI 文字 | 依情況用 `feat`／`fix`，摘要中寫出是 UI |
+| 測試 | 測試程式與範例資料 | `test` |
+| 文件 | README、`docs/`、`CLAUDE.md`、`.claude/` 中的說明 | `docs` |
+
+- 只有一種性質時，一個 commit 即可；同一種性質但目的不同時，也要拆開
+- 依「被依賴的先 commit」排序（例如設定 → 程式 → UI → 測試 → 文件），讓每個 commit 都盡量可以建置
+- 退回修改時，每一條修改意見各自一個（或一組）commit，「為什麼」寫出對應的意見
+- 不改寫已 push 的 commit
+
 ### commit 訊息
 
 ```
 <類型>(<範圍>): <繁體中文摘要> (#<issue 編號>)
 
-<選填：說明為什麼這樣改>
+改了什麼：
+- <檔案或模組>：<變更>
+
+為什麼：
+- <理由；對應 issue 的哪一個完成條件或 PR 上的哪一條意見>
 ```
 
-- **類型**：同上表，另加 `test`（只改測試）
+- **類型**：同「子 issue 分支的類型」表（`feat`、`fix`、`exp`、`chore`、`refactor`、`docs`），另加 `test`（只改測試）
 - **範圍**：`planner`、`client`、`map`、`server`、`protocol`、`game-data`、`repo`（跨多個範圍或整個 repo）、`docs`
 - **摘要**：50 字以內，描述做了什麼，不加句號
-- 一個 commit 只做一件事；可以有多個 commit 對應同一個 issue
+- **內文必填**：「改了什麼」與「為什麼」兩段都要寫
+- 可以有多個 commit 對應同一個 issue
 
 範例：
 
 ```
 chore(repo): 建立 solution 與 planner、client 空白專案 (#2)
-feat(client): 監聽遊戲紀錄檔並解析任務完成事件 (#14)
+
+改了什麼：
+- TarkovWYA.slnx：包含 planner、client 與測試專案
+- global.json：指定 .NET SDK 10
+
+為什麼：
+- 對應完成條件「dotnet build TarkovWYA.slnx 成功」
+```
+
+```
 fix(planner): 修正手動修正後進度被 log 覆蓋 (#21)
+
+改了什麼：
+- ProgressMerger：手動修正的項目不再被之後的 log 事件覆蓋
+
+為什麼：
+- PR 意見第 1 條：手動修正應優先於 log
 ```
 
 ### 合併方式
 
+所有 PR 一律用 **Create a merge commit** 合併（[`decisions/0012`](decisions/0012-traceable-development.md)）：
+
 | PR | 合併方式 | 理由 |
 |---|---|---|
-| 子 issue 分支 → dev 分支 | **Squash and merge** | 每個子 issue 在 dev 分支上成為一個 commit |
-| dev 分支 → `main` | **Create a merge commit** | 保留每個子 issue 的 commit，`main` 上看得出目標由哪些工作組成 |
+| 子 issue 分支 → dev 分支 | **Create a merge commit** | 保留依內容拆分的每個 commit，git 歷史看得出每一部分改了什麼、為什麼改 |
+| dev 分支 → `main` | **Create a merge commit** | 保留每個子 issue 的合併點與 commit，`main` 上看得出目標由哪些工作組成 |
 
+- `git log --first-parent` 只看合併點：在 dev 分支上一個子 issue 一個合併點，在 `main` 上一個目標一個合併點
 - 不直接 commit 或 push 到 `main` 與 dev 分支，一律透過 PR 合併
 - 同時進行多個目標、`main` 前進時：由使用者把 `main` 合併進 dev 分支後再繼續
 
@@ -201,16 +246,17 @@ GitHub 只在 PR 合併到**預設分支（`main`）**時，才會自動關閉 `
 
 - 開發規則、回報格式與禁止事項都寫在 [`CLAUDE.md`](../CLAUDE.md)；環境設定見 [`claude-code.md`](claude-code.md)
 - `/next-issue`：列出目前可以接手的 issue
-- `/develop-issue <編號>`：檢查狀態、上層目標與依賴 → 留言「🤖 開始開發」並改為 `status:in-progress` → 從 dev 分支開出子分支開發 → **開 PR 到 dev 分支**（內容為開發回報，第一行 `Closes #<編號>`）並改為 `status:review`
-- 退回修改時：讀取 PR 上的意見 → 在原分支修改並 push → 在 PR 留言「🤖 修改回報」並改為 `status:review`
+- `/develop-issue <編號>`：檢查狀態、上層目標與依賴 → 留言「🤖 開始開發」並改為 `status:in-progress` → 從 dev 分支開出子分支開發 → 依內容性質分批 commit（第 6 節）→ **開 PR 到 dev 分支**（內容為開發回報，第一行 `Closes #<編號>`，「## Commits」列出每個 commit）→ 等 CI 結束（`gh pr checks --watch`），在 PR 留言「🤖 CI 結果」→ 在子 issue 留言「🤖 完成條件確認」→ 改為 `status:review`
+- 退回修改時：讀取 PR 上的意見 → 在原分支依每條意見分別 commit 並 push → 在 PR 留言「🤖 修改回報」→ 等 CI 結束並留言「🤖 CI 結果」→ 在子 issue **另留一則新的**「🤖 完成條件確認」→ 改為 `status:review`
+- 完成條件的驗證結果寫在子 issue 的「🤖 完成條件確認」留言中：逐條原文引用 issue 的完成條件，標示 ✅／❌／👤；**不修改 issue 內容**，也不在目標 issue 留言
 - 只在自己的子 issue 分支上開發，可以 push 自己的分支、開 PR；**不 push 到 main 或 dev 分支、不合併／關閉／核准 PR、不關閉 issue**
 
 ## 8. 審核與合併（使用者）
 
 - 從 [Pull requests](https://github.com/17-Tarkov-WYA/tarkov-wya/pulls) 或 [`status:review`](https://github.com/17-Tarkov-WYA/tarkov-wya/issues?q=is%3Aopen+label%3Astatus%3Areview) 找到等待審核的工作
-- 在 PR 頁面確認**目標分支是目標的 dev 分支**（不是 `main`），對照完成條件與開發回報，檢查 **Files changed** 與 CI 結果
+- 在 PR 頁面確認**目標分支是目標的 dev 分支**（不是 `main`），對照開發回報與子 issue 的「🤖 完成條件確認」留言，檢查 **Commits**（是否依內容拆分、內文是否寫出改了什麼與為什麼）、**Files changed** 與「🤖 CI 結果」留言
 - **需要修改**：在 PR 的 **Conversation** 留言，**逐條寫出要改什麼**（行內留言可以當作補充，但要求本身請寫在留言中，Claude 才能完整讀到）；把子 issue 的標籤改成 `status:changes-requested`，再執行 `/develop-issue <編號>`
-- **通過**：CI 通過後按 **Squash and merge**；子 issue 由工作流程自動關閉
+- **通過**：CI 通過後按 **Create a merge commit**（保留每個 commit）；子 issue 由工作流程自動關閉
 - 合併後刪除子 issue 分支
 - PR 是用你的 token 開的，作者會顯示為你的帳號，所以 GitHub 不允許你「核准」它；**合併就是你的審核結果**，不需要另外核准
 
@@ -220,7 +266,7 @@ GitHub 只在 PR 合併到**預設分支（`main`）**時，才會自動關閉 `
 2. 發現缺漏時新增子 issue，回到開發流程
 3. 通過後開 PR：**dev 分支 → `main`**，內容寫 `Closes #<目標編號>`
 4. CI 通過後按 **Create a merge commit**；目標 issue 自動關閉
-5. 刪除 dev 分支
+5. **保留** dev 分支，不要刪除：ruleset 禁止刪除 `dev/**`，用來防止誤刪；保留的 dev 分支也是這個目標的紀錄
 
 ## 10. 設計決策
 

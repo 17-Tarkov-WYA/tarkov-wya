@@ -1,6 +1,6 @@
 # 與 Claude Code 整合開發 (Claude Code Integration)
 
-本文件給**使用者**：說明如何設定環境、啟動負責開發的 Claude，以及如何審核成果。開發的 Claude 要遵守的規則寫在 [`CLAUDE.md`](../CLAUDE.md)。決策依據見 [`decisions/0010`](decisions/0010-claude-code-integration.md)。
+本文件給**使用者**：說明如何設定環境、啟動負責開發的 Claude，以及如何審核成果。開發的 Claude 要遵守的規則寫在 [`CLAUDE.md`](../CLAUDE.md)。決策依據見 [`decisions/0010`](decisions/0010-claude-code-integration.md)、[`decisions/0012`](decisions/0012-traceable-development.md)。
 
 ## 1. repo 中的 Claude Code 設定
 
@@ -67,6 +67,7 @@ gh issue list --repo 17-Tarkov-WYA/tarkov-wya
 repo 的 **Settings → Rules → Rulesets → New branch ruleset**：
 
 - Target：`main`，以及 **Include by pattern** `dev/**`（同一個 ruleset 可以設定多個目標）
+- 勾選 **Restrict deletions**（目標完成後保留 dev 分支，見 [`decisions/0012`](decisions/0012-traceable-development.md)）
 - 勾選 **Require a pull request before merging**
 - 勾選 **Require status checks to pass** → 選「格式檢查」（之後加上建置）
 - 勾選 **Block force pushes**
@@ -102,7 +103,9 @@ repo 的 **Settings → Rules → Rulesets → New branch ruleset**：
     /develop-issue <子 issue 編號>
     ```
 
-Claude 會依序：確認狀態、上層目標、dev 分支與依賴 → 讀取子 issue、目標與相關文件 → 從 dev 分支開出子分支 → 留言「🤖 開始開發（Claude）」並改為 `status:in-progress` → implementer 實作 → tester 驗證 → reviewer 審查 → commit 並 push 分支 → **開 PR 到 dev 分支**（內容為「🤖 開發回報（Claude）」，第一行 `Closes #<編號>`）並改為 `status:review`。
+Claude 會依序：確認狀態、上層目標、dev 分支與依賴 → 讀取子 issue、目標與相關文件 → 從 dev 分支開出子分支 → 留言「🤖 開始開發（Claude）」並改為 `status:in-progress` → implementer 實作 → tester 驗證 → reviewer 審查 → 依內容性質分批 commit（每個 commit 內文寫出改了什麼與為什麼）並 push 分支 → **開 PR 到 dev 分支**（內容為「🤖 開發回報（Claude）」，第一行 `Closes #<編號>`）→ 等 CI 結束，在 PR 留言「🤖 CI 結果（Claude）」→ 在子 issue 留言「🤖 完成條件確認（Claude）」→ 改為 `status:review`。
+
+所以看到 `status:review` 時，CI 已經結束，可以直接審核。
 
 同時開發多個子 issue 時，每個 issue 使用一個獨立的 Claude Code 工作階段（或 worktree），避免互相干擾。
 
@@ -115,6 +118,8 @@ Claude 會依序：確認狀態、上層目標、dev 分支與依賴 → 讀取�
 | 開發中的 | `is:open label:status:in-progress` |
 | 卡住的 | `is:open label:status:blocked`（原因在 issue 留言） |
 | 用哪個分支 | issue 留言「🤖 開始開發（Claude）」 |
+| 完成條件驗證到哪裡 | 子 issue 留言「🤖 完成條件確認（Claude）」（以最新的一則為準） |
+| CI 結果 | PR 留言「🤖 CI 結果（Claude）」 |
 
 各狀態標籤的意思與轉換見 [`workflow.md`](workflow.md) 第 2 節。
 
@@ -124,24 +129,27 @@ Claude 會依序：確認狀態、上層目標、dev 分支與依賴 → 讀取�
 
 - [ ] PR 上方顯示的**目標分支是目標的 dev 分支**（例如 `dev/1-skeleton`），不是 `main`
 - [ ] PR 內容（開發回報）：每一條完成條件都是 ✅，且附有**實際執行的指令與結果**
+- [ ] 子 issue 的「🤖 完成條件確認（Claude）」留言：逐條原文引用完成條件，沒有 ❌；👤 的項目自己確認過。issue 內容沒有被修改（標題旁沒有「edited」）
 - [ ] 「偏離或未完成」「需要使用者決定的事」都已處理
+- [ ] **Commits**：依內容性質拆分（設定、程式、UI、測試、文件），每個 commit 內文都有「改了什麼」「為什麼」
 - [ ] **Files changed**：變更內容沒有超出「不做的範圍」
-- [ ] **Checks**：CI 全部通過
+- [ ] **Checks** 與「🤖 CI 結果（Claude）」留言：CI 全部通過
 - [ ] 自己執行一次驗證方式（例如 `dotnet build`）
 
 之後：
 
-- **需要修改**：在 PR 的 **Conversation** 留言，**逐條寫出要改什麼**（行內留言只當補充，Claude 不一定讀得到）；子 issue 的標籤改成 `status:changes-requested`，再執行 `/develop-issue <編號>`。Claude 會在同一個分支修改、push（PR 自動更新），並在 PR 留言「🤖 修改回報（Claude）」
-- **通過**：按 **Squash and merge** 合併到 dev 分支；工作流程「關閉已合併的子 issue」會自動關閉子 issue；合併後刪除子分支
+- **需要修改**：在 PR 的 **Conversation** 留言，**逐條寫出要改什麼**（行內留言只當補充，Claude 不一定讀得到）；子 issue 的標籤改成 `status:changes-requested`，再執行 `/develop-issue <編號>`。Claude 會在同一個分支依每條意見分別 commit、push（PR 自動更新），在 PR 留言「🤖 修改回報（Claude）」與新的「🤖 CI 結果（Claude）」，並在子 issue 另留一則新的「🤖 完成條件確認（Claude）」
+- **通過**：按 **Create a merge commit** 合併到 dev 分支（保留每個 commit）；工作流程「關閉已合併的子 issue」會自動關閉子 issue；合併後刪除子分支
+- 「🤖 完成條件確認」只代表 Claude 已自行驗證；**你按下合併才是審核結果**
 - **不要了**：自己關閉 PR，並視情況調整子 issue
-- **卡住**（`status:blocked`）：看 issue 留言中的原因，處理後把標籤改回 `status:ready`
+- **卡住**（`status:blocked`）：看 issue 留言中的原因，處理後把標籤改回 `status:ready`；**已經有 PR 時**（例如 CI 失敗無法修正）改為 `status:changes-requested`，並在 PR 留言說明處理方式或接下來要改什麼，Claude 才會沿用原本的分支與 PR
 
 ## 7. 完成目標
 
 1. 子 issue 全部關閉後，在 dev 分支上對照目標 issue 的「整體完成條件」與「驗收方式」做最後審核；有缺漏就新增子 issue
 2. 通過後開 PR：**base 選 `main`、compare 選 dev 分支**，內容寫 `Closes #<目標編號>`
-3. CI 通過後按 **Create a merge commit**（保留每個子 issue 的 commit），目標 issue 自動關閉
-4. 刪除 dev 分支
+3. CI 通過後按 **Create a merge commit**（保留每個子 issue 的合併點與 commit），目標 issue 自動關閉
+4. **保留** dev 分支，不要刪除：ruleset 禁止刪除 `dev/**`，用來防止誤刪；保留的 dev 分支也是這個目標的紀錄
 
 同時進行多個目標、`main` 已經前進時，先把 `main` 合併進 dev 分支（在 dev 分支的頁面開 PR：base 選 dev 分支、compare 選 `main`），處理完衝突再繼續。
 
