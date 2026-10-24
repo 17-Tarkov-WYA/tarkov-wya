@@ -76,6 +76,9 @@
 - 依「被依賴的先 commit」排序（設定 → 程式 → UI → 測試 → 文件），讓每個 commit 都盡量可以建置
 - commit 前先規劃每個 commit 包含哪些檔案與目的，再用 `git add <檔案>` 分批 commit；不用 `git add -A` 或 `git add .`
 - 退回修改時，每一條修改意見各自一個（或一組）commit，「為什麼」寫出對應的意見；不改寫已 push 的 commit
+- **審查的時機**（[`docs/decisions/0012`](docs/decisions/0012-traceable-development.md)）：
+    - 第一次開發：先審查、再 commit
+    - 退回修改：每條意見改完就在本機 commit，全部改完、**push 之前**再交給 reviewer；reviewer 提出必須修正時，**新增修正 commit**（不 amend、不 rebase），「為什麼」寫出 reviewer 的哪一條意見，以及它對應的 PR 意見
 - **commit 內文必填**（內容先存成暫存檔，再用 `git commit -F <暫存檔>`）：
 
     ```
@@ -121,7 +124,7 @@
 | `tester` | 依完成條件與驗證方式實際執行並記錄結果 | 否 |
 | `reviewer` | 對照 issue、本檔案、開發風格與決策紀錄審查變更 | 否 |
 
-reviewer 提出「必須修正」時，交回 implementer，直到沒有必須修正的問題。
+reviewer 提出「必須修正」時，交回 implementer，直到沒有必須修正的問題。第一次開發時，reviewer 審查還沒 commit 的變更；退回修改時，reviewer 在 push 前審查已在本機 commit 的變更（見「分支與 commit」的「審查的時機」）。
 
 ## 驗證方式
 

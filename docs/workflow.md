@@ -183,6 +183,7 @@ main ─────────────────────────
 - 只有一種性質時，一個 commit 即可；同一種性質但目的不同時，也要拆開
 - 依「被依賴的先 commit」排序（例如設定 → 程式 → UI → 測試 → 文件），讓每個 commit 都盡量可以建置
 - 退回修改時，每一條修改意見各自一個（或一組）commit，「為什麼」寫出對應的意見
+- 審查的時機：第一次開發先審查、再 commit；退回修改時每條意見改完就在本機 commit，全部改完、push 之前再審查，必須修正時新增修正 commit
 - 不改寫已 push 的 commit
 
 ### commit 訊息
@@ -248,7 +249,7 @@ GitHub 只在 PR 合併到**預設分支（`main`）**時，才會自動關閉 `
 - 開發規則、回報格式與禁止事項都寫在 [`CLAUDE.md`](../CLAUDE.md)；環境設定見 [`claude-code.md`](claude-code.md)
 - `/next-issue`：列出目前可以接手的 issue
 - `/develop-issue <編號>`：檢查狀態、上層目標與依賴 → 留言「🤖 開始開發」並改為 `status:in-progress` → 從 dev 分支開出子分支開發 → 依內容性質分批 commit（第 6 節）→ **開 PR 到 dev 分支**（內容為開發回報，第一行 `Closes #<編號>`，「## Commits」列出每個 commit）→ 等 CI 結束（`gh pr checks --watch`），在 PR 留言「🤖 CI 結果」→ 在子 issue 留言「🤖 完成條件確認」→ 改為 `status:review`
-- 退回修改時：讀取 PR 上的意見 → 在原分支依每條意見分別 commit 並 push → 在 PR 留言「🤖 修改回報」→ 等 CI 結束並留言「🤖 CI 結果」→ 在子 issue **另留一則新的**「🤖 完成條件確認」→ 改為 `status:review`
+- 退回修改時：讀取 PR 上的意見 → 在原分支依每條意見分別在本機 commit → reviewer 在 push 前審查（必須修正時新增修正 commit）→ push → 在 PR 留言「🤖 修改回報」→ 等 CI 結束並留言「🤖 CI 結果」→ 在子 issue **另留一則新的**「🤖 完成條件確認」→ 改為 `status:review`
 - 完成條件的驗證結果寫在子 issue 的「🤖 完成條件確認」留言中：逐條原文引用 issue 的完成條件，標示 ✅／❌／👤；**不修改 issue 內容**，也不在目標 issue 留言
 - 只在自己的子 issue 分支上開發，可以 push 自己的分支、開 PR；**不 push 到 main 或 dev 分支、不合併／關閉／核准 PR、不關閉 issue**
 

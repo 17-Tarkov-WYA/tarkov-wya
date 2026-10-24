@@ -70,16 +70,23 @@ argument-hint: <子 issue 編號>
 
 ## 5. 開發（agent team）
 
-依序交給三個角色，每一步都把 issue 編號、上層目標、dev 分支、完成條件與相關文件交代清楚：
+依序交給三個角色，每一步都把 issue 編號、上層目標、dev 分支、完成條件與相關文件交代清楚。第一次開發與退回修改的 commit 時機不同（`docs/decisions/0012-traceable-development.md`）：
 
-1. **implementer**：實作（退回修改時，只依 PR 上的修改意見修改）；完成時依內容性質分組回報修改的檔案與理由，第 6 步據此拆分 commit
+| 情況 | 順序 |
+|---|---|
+| 第一次開發 | implementer → tester → reviewer → 第 6 步 commit |
+| 退回修改 | implementer 每改完一條意見，就依第 6 步 1～3 在本機 commit（一條意見一個或一組 commit）→ 全部意見改完後 tester → reviewer（push 之前）→ 第 6 步 push |
+
+1. **implementer**：實作（退回修改時，只依 PR 上的修改意見修改，一次一條）；完成時依內容性質分組回報修改的檔案與理由，第 6 步據此拆分 commit
 2. **tester**：依完成條件與驗證方式實際執行並記錄結果
-3. **reviewer**：審查**還沒 commit** 的變更，告訴它 dev 分支名稱與這次是第一次開發還是退回修改
-    - 第一次開發：`git diff origin/<dev 分支>`，加上 `git status` 列出的未追蹤新檔案
-    - 退回修改：本輪的變更 `git diff HEAD`（加上未追蹤新檔案），以及整體的變更 `git diff origin/<dev 分支>`
-    - 不使用 `git diff origin/<dev 分支>...HEAD`（審查時還沒有 commit，結果會是空的）
+3. **reviewer**：告訴它 dev 分支名稱、子 issue 分支名稱，與這次是第一次開發還是退回修改
+    - 第一次開發（還沒 commit）：`git diff origin/<dev 分支>`，加上 `git status` 列出的未追蹤新檔案；不使用 `git diff origin/<dev 分支>...HEAD`（還沒有 commit，結果會是空的）
+    - 退回修改（已在本機 commit、還沒 push）：本輪全部的變更 `git diff origin/<分支名稱>`；本機的每一個 commit 逐一 `git show <hash>`，確認每個 commit 只包含它對應的那一條意見；整體的變更 `git diff origin/<dev 分支>`
 
-reviewer 提出「必須修正」時，交回 implementer 修正，再重新經過 tester 與 reviewer，直到沒有必須修正的問題。
+reviewer 提出「必須修正」時，交回 implementer 修正，再重新經過 tester 與 reviewer，直到沒有必須修正的問題：
+
+- 第一次開發：修正後才進入第 6 步 commit
+- 退回修改：修正後**新增修正 commit**，不改寫既有的 commit（不 amend、不 rebase）；「為什麼」寫出 reviewer 的哪一條意見，以及它對應的 PR 意見
 
 ## 6. commit 與 push
 
@@ -89,7 +96,7 @@ reviewer 提出「必須修正」時，交回 implementer 修正，再重新經�
     - 一個 commit 只包含一種性質：設定與建置（`chore`）、程式邏輯（`feat`／`fix`／`refactor`）、UI（`feat`／`fix`，摘要寫出是 UI）、驗證實驗的程式與紀錄（`exp`）、測試（`test`）、文件（`docs`）
     - 只有一種性質時一個 commit 即可；同一種性質但目的不同時也要拆開
     - 順序依「被依賴的先 commit」：設定 → 程式 → UI → 測試 → 文件
-    - 退回修改時：每一條修改意見各自一個（或一組）commit
+    - 退回修改時：每一條修改意見各自一個（或一組）commit，**每改完一條就 commit**（在第 5 步中進行），全部 commit 完、reviewer 審查之後才 push
 2. **分批 commit**：每個 commit 的訊息先存成暫存檔，標題結尾引用 `(#$ARGUMENTS)`，**內文必填**「改了什麼」「為什麼」
 
     ```

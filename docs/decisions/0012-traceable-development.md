@@ -47,6 +47,15 @@
 - 退回修改時，每一條修改意見各自一個（或一組）commit，「為什麼」寫出對應的意見
 - 不改寫已 push 的 commit
 
+### 審查的時機：第一次開發先審查，退回修改先 commit
+
+- **第一次開發**：先審查、再 commit
+- **退回修改**：每條意見改完就在本機 commit（一條意見一個或一組 commit），全部改完、**push 之前**再交給 reviewer。reviewer 要看：
+    - 本輪全部的變更：`git diff origin/<自己的分支>`
+    - 本機的每一個 commit：逐一 `git show <hash>`，確認每個 commit 只包含它對應的那一條意見
+    - 整體的變更：`git diff origin/<dev 分支>`
+- reviewer 提出必須修正時，**新增修正 commit**，不改寫既有的 commit（不 amend、不 rebase）；「為什麼」寫出 reviewer 的哪一條意見，以及它對應的 PR 意見
+
 ### 所有 PR 一律 Create a merge commit
 
 子 issue 分支 → dev 分支、dev 分支 → `main`，都用 **Create a merge commit** 合併。
@@ -83,6 +92,7 @@ dev 分支合併到 `main` 後**不刪除**：ruleset 禁止刪除 `dev/**`，�
 - 使用者要能從 git 歷史追蹤每一部分改了什麼、為什麼改；依性質拆分後，看 commit 就知道設定、程式、文件各自的變更
 - 壓成一個 commit 的合併方式會把拆好的 commit 合成一個，所以子 issue 也改用 merge commit；`git log --first-parent` 仍能看到一個子 issue 一個合併點，不會失去「一個子 issue 一個單位」的好處
 - 「被依賴的先 commit」讓每個 commit 盡量可以建置，之後要找出問題出在哪個 commit 比較容易
+- 退回修改時，多條意見常常改到同一個檔案；commit 以檔案為單位，又不能用互動式的 `git add -p`，所以「一條意見一個 commit」和「先審查、再 commit」無法同時做到（PR #10 的「🤖 修改回報」 https://github.com/17-Tarkov-WYA/tarkov-wya/pull/10#issuecomment-6384501111 ）。使用者選擇保留一條意見一個 commit，把審查移到 push 之前（PR #10 第二輪意見第 1 條 https://github.com/17-Tarkov-WYA/tarkov-wya/pull/10#issuecomment-6384650208 ）
 - CI 通常要幾分鐘，開 PR 後馬上檢查只會看到「執行中」；等結束再回報，使用者看到 `status:review` 時就能直接審核
 - 考慮過讓 Claude 在 issue 內容的完成條件上打勾：使用者寫的原始需求會被修改，也分不出是誰確認的，所以改為另外留言；留言保留每一次的確認紀錄，退回修改後也看得出前後差異
 
