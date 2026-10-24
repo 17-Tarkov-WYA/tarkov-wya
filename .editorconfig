@@ -1,0 +1,37 @@
+root = true
+
+# 預設：UTF-8、LF、空白縮排 2 格
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Markdown：行尾兩個空白代表換行，不自動刪除
+[*.md]
+trim_trailing_whitespace = false
+
+# C#、XAML：Visual Studio 慣例（CRLF、縮排 4 格、UTF-8 BOM）
+[*.{cs,xaml}]
+charset = utf-8-bom
+end_of_line = crlf
+indent_size = 4
+
+# 專案與方案檔
+[*.{csproj,props,targets,sln,slnx,resx}]
+end_of_line = crlf
+
+# Windows 指令稿
+[*.{bat,cmd,ps1}]
+end_of_line = crlf
+
+# 第三方原文，不檢查格式
+[LICENSE]
+charset = unset
+end_of_line = unset
+indent_style = unset
+indent_size = unset
+insert_final_newline = unset
+trim_trailing_whitespace = unset

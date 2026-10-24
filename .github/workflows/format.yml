@@ -1,0 +1,15 @@
+name: 格式檢查
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  editorconfig:
+    name: 檢查檔案格式（.editorconfig）
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: editorconfig-checker/action-editorconfig-checker@v3
+      - run: editorconfig-checker

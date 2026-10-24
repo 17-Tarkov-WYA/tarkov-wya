@@ -1,0 +1,43 @@
+# ===== .NET（client、planner）=====
+bin/
+obj/
+publish/
+artifacts/
+TestResults/
+*.nupkg
+*.snupkg
+
+# ===== Node（map、server 恢復開發後使用）=====
+node_modules/
+dist/
+.vite/
+coverage/
+npm-debug.log*
+
+# ===== 編輯器與 IDE =====
+.vs/
+*.user
+*.suo
+*.rsuser
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# ===== 本機設定與機密 =====
+.env
+.env.*
+!.env.example
+*.local.json
+
+# ===== 個人遊戲資料（可能包含帳號或遊戲紀錄，絕不上傳）=====
+experiments/data/
+*.log
+
+# ===== 系統 =====
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# ===== Claude Code 工作區 =====
+.claude/

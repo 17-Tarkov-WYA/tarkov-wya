@@ -1,0 +1,41 @@
+# 預設：文字檔一律以 LF 儲存
+* text=auto eol=lf
+
+# ===== Windows／Visual Studio 相關檔案：CRLF =====
+*.cs       text eol=crlf
+*.xaml     text eol=crlf
+*.csproj   text eol=crlf
+*.props    text eol=crlf
+*.targets  text eol=crlf
+*.sln      text eol=crlf
+*.slnx     text eol=crlf
+*.resx     text eol=crlf
+*.bat      text eol=crlf
+*.cmd      text eol=crlf
+*.ps1      text eol=crlf
+
+# ===== 一律 LF =====
+*.sh       text eol=lf
+*.md       text eol=lf
+*.json     text eol=lf
+*.yml      text eol=lf
+*.yaml     text eol=lf
+*.svg      text eol=lf
+
+# ===== 二進位檔：不做換行轉換、不顯示文字差異 =====
+*.png      binary
+*.jpg      binary
+*.jpeg     binary
+*.gif      binary
+*.webp     binary
+*.ico      binary
+*.pdf      binary
+*.zip      binary
+*.7z       binary
+*.exe      binary
+*.dll      binary
+*.pdb      binary
+*.woff     binary
+*.woff2    binary
+*.ttf      binary
+*.otf      binary
