@@ -85,8 +85,8 @@ argument-hint: <子 issue 編號>
 
 reviewer 提出「必須修正」時，交回 implementer 修正，再重新經過 tester 與 reviewer，直到沒有必須修正的問題：
 
-- 第一次開發：修正後才進入第 6 步 commit；審查結果摘要寫進開發回報
-- 退回修改：先把 reviewer 的審查結果（含 M1、S1… 編號）以「🤖 審查結果（Claude reviewer）」留言到 PR、取得連結，再修正並**新增修正 commit**，不改寫既有的 commit（不 amend、不 rebase）；「為什麼」寫出「審查留言連結＋編號」，以及它對應的 PR 意見。必須修正（M）一條一個 commit，同一個根本原因造成的多條可以合併，「為什麼」列出所有編號；建議（S）可以合成一個「處理審查建議」的 commit，「為什麼」逐一列出編號
+- 修正不會產生修正 commit 時（第一次開發 commit 之前的審查）：修正後才進入第 6 步 commit；審查結果摘要寫進開發回報
+- 修正會產生修正 commit 時（已經有 commit 之後的審查，例如退回修改、第一次開發逐一驗證失敗後的重新審查）：先把 reviewer 的審查結果（含 M1、S1… 編號）留言、取得連結——**已經有 PR 時**以「🤖 審查結果（Claude reviewer）」留言到 PR，**還沒有 PR 時**（第一次開發 push 前）留言到子 issue——再修正並**新增修正 commit**，不改寫既有的 commit（不 amend、不 rebase）；「為什麼」寫出「審查留言連結＋編號」，以及它對應的 PR 意見。必須修正（M）一條一個 commit，同一個根本原因造成的多條可以合併，「為什麼」列出所有編號；建議（S）可以合成一個「處理審查建議」的 commit，「為什麼」逐一列出編號
 - reviewer、tester 是唯讀的，留言一律由你發布（`CLAUDE.md`「Agent team」的「審查與驗證結果的紀錄」）
 
 ## 6. commit 與 push
