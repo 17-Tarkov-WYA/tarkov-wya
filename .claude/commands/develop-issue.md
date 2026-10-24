@@ -82,11 +82,13 @@ argument-hint: <子 issue 編號>
 3. **reviewer**：告訴它 dev 分支名稱、子 issue 分支名稱，與這次是第一次開發還是退回修改
     - 第一次開發（還沒 commit）：`git diff origin/<dev 分支>`，加上 `git status` 列出的未追蹤新檔案；不使用 `git diff origin/<dev 分支>...HEAD`（還沒有 commit，結果會是空的）
     - 退回修改（已在本機 commit、還沒 push）：本輪全部的變更 `git diff origin/<子 issue 分支>`；本機的每一個 commit 逐一 `git show <hash>`，確認每個 commit 只包含它對應的那一條意見；整體的變更 `git diff origin/<dev 分支>`
+    - 最後一次審查之後新增的 commit（包含逐一驗證失敗後的修正 commit）：只審查新增的 commit，逐一 `git show <hash>`
 
 reviewer 提出「必須修正」時，交回 implementer 修正，再重新經過 tester 與 reviewer，直到沒有必須修正的問題：
 
 - 修正不會產生修正 commit 時（第一次開發 commit 之前的審查）：修正後才進入第 6 步 commit；審查結果摘要寫進開發回報
 - 修正會產生修正 commit 時（已經有 commit 之後的審查，例如退回修改、第一次開發逐一驗證失敗後的重新審查）：先把 reviewer 的審查結果（含 M1、S1… 編號）留言、取得連結——**已經有 PR 時**以「🤖 審查結果（Claude reviewer）」留言到 PR，**還沒有 PR 時**（第一次開發 push 前）留言到子 issue——再修正並**新增修正 commit**，不改寫既有的 commit（不 amend、不 rebase）；「為什麼」寫出「審查留言連結＋編號」，以及它對應的 PR 意見。必須修正（M）一條一個 commit，同一個根本原因造成的多條可以合併，「為什麼」列出所有編號；建議（S）可以合成一個「處理審查建議」的 commit，「為什麼」逐一列出編號
+- 只有建議（S）、而且要用 commit 處理時，同樣先把審查結果留言、取得連結，再建立 commit
 - reviewer、tester 是唯讀的，留言一律由你發布（`CLAUDE.md`「Agent team」的「審查與驗證結果的紀錄」）
 
 ## 6. commit 與 push
@@ -113,7 +115,7 @@ reviewer 提出「必須修正」時，交回 implementer 修正，再重新經�
     - tester 重新驗證時，只驗證上次驗證之後新增的 commit，並確認最後一個 commit 通過；已標示 ❌ 且有修正 commit 的，不再阻擋整輪
     - push 前，最後一次審查之後新增的 commit（包含這裡的修正 commit），都要再交給 reviewer（第 5 步 3），只審查新增的 commit
 5. 把 commit 規劃寫進開發回報的「## Commits」（退回修改時寫進修改回報的「## Commits」）：範圍（基準 → 第一個 → 最後一個，附 compare 連結）、每個 commit 的順序、hash、標題、為什麼、單獨驗證的結果（第 6 步 4），以及排序理由（格式見 `CLAUDE.md`「回報與 PR」）
-6. push 自己的分支：`git push -u origin <子 issue 分支>`
+6. push 子 issue 分支：`git push -u origin <子 issue 分支>`
 - **不**改寫已 push 的 commit（不 amend、不 rebase、不 force push）
 - **不** push 到 `main` 或任何 `dev/*` 分支、**不** merge、**不**關閉 issue
 

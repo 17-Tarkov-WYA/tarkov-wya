@@ -120,6 +120,7 @@ Claude 會依序：確認狀態、上層目標、dev 分支與依賴 → 讀取�
 | 用哪個分支 | issue 留言「🤖 開始開發（Claude）」 |
 | 完成條件驗證到哪裡 | 子 issue 留言「🤖 完成條件確認（Claude）」（以最新的一則為準） |
 | CI 結果 | PR 留言「🤖 CI 結果（Claude）」 |
+| reviewer 的審查結果、tester 的逐一驗證結果 | PR 留言「🤖 審查結果（Claude reviewer）」「🤖 逐一驗證結果（Claude tester）」（只在產生修正 commit 時留言；還沒有 PR 時在子 issue） |
 
 各狀態標籤的意思與轉換見 [`workflow.md`](workflow.md) 第 2 節。
 
@@ -131,7 +132,7 @@ Claude 會依序：確認狀態、上層目標、dev 分支與依賴 → 讀取�
 - [ ] PR 內容（開發回報）：每一條完成條件都是 ✅，且附有**實際執行的指令與結果**
 - [ ] 子 issue 的「🤖 完成條件確認（Claude）」留言：逐條原文引用完成條件，沒有 ❌；👤 的項目自己確認過。issue 內容沒有被修改（標題旁沒有「edited」）
 - [ ] 「偏離或未完成」「需要使用者決定的事」都已處理
-- [ ] **Commits**：依內容性質拆分（設定、程式、UI、測試、文件），每個 commit 內文都有「改了什麼」「為什麼」
+- [ ] **Commits**：依內容性質拆分（設定、程式、UI、測試、文件），每個 commit 內文都有「改了什麼」「為什麼」；回報「## Commits」的「單獨驗證」欄若有 ❌，都寫出由哪個 commit 修正
 - [ ] **Files changed**：變更內容沒有超出「不做的範圍」
 - [ ] **Checks** 與「🤖 CI 結果（Claude）」留言：CI 全部通過
 - [ ] 自己執行一次驗證方式（例如 `dotnet build`）

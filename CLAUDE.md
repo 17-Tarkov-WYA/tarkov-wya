@@ -56,7 +56,7 @@
 完整規則見 [`docs/workflow.md`](docs/workflow.md) 第 6 節。
 
 - **分支結構**：`main` ← 目標的 dev 分支 `dev/<目標編號>-<說明>`（使用者建立）← 子 issue 分支（你建立）
-- **你的分支**：`<類型>/<子 issue 編號>-<簡短英文說明>`，例如 `chore/2-solution`
+- **子 issue 分支**（你建立）：`<類型>/<子 issue 編號>-<簡短英文說明>`，例如 `chore/2-solution`
 - **要用哪個分支**：
     - `status:ready`：從最新的 `origin/<dev 分支>` 開新分支
     - `status:changes-requested`：沿用 issue 留言「🤖 開始開發（Claude）」記錄的分支，不開新分支
@@ -148,7 +148,7 @@
 | `tester` | 依完成條件與驗證方式實際執行並記錄結果；commit 之後逐一驗證每個 commit | 否 |
 | `reviewer` | 對照 issue、本檔案、開發風格與決策紀錄審查變更 | 否 |
 
-reviewer 提出「必須修正」時，交回 implementer，直到沒有必須修正的問題。第一次開發時，reviewer 審查還沒 commit 的變更；退回修改時，reviewer 在 push 前審查已在本機 commit 的變更（見「分支與 commit」的「審查的時機」）。
+reviewer 提出「必須修正」時，交回 implementer，直到沒有必須修正的問題。第一次開發時，reviewer 審查還沒 commit 的變更；退回修改時，reviewer 在 push 前審查已在本機 commit 的變更；最後一次審查之後新增的 commit（包含逐一驗證失敗後的修正 commit）也要再交給 reviewer，只審查新增的 commit（見「分支與 commit」的「審查的時機」）。
 
 reviewer 要逐個 commit 確認：diff 中的**每一處**變更，都能對應到這個 commit「為什麼」引用的來源。找不到依據的變更一律列為「必須修正」（移除，或列入「需要使用者決定的事」）。reviewer 回報中的每一個判斷都要附上依據（檔案:行號、來源原文）；無法從 5 類來源（見「分支與 commit」）確認的事，寫「無依據」並列入「需要使用者決定的事」。
 
@@ -212,6 +212,7 @@ issue 上另有「🤖 完成條件確認（Claude）」留言。
 ## 驗證
 | 項目 | 指令 | 結果 |
 |---|---|---|
+| 審查 | reviewer | <審查結果摘要；有「🤖 審查結果」留言時附連結> |
 | CI | `gh pr checks --watch` | 見 PR 留言「🤖 CI 結果」 |
 
 ## 偏離或未完成
@@ -247,6 +248,7 @@ issue 上另有「🤖 完成條件確認（Claude）」留言。
 ## 驗證
 | 項目 | 指令 | 結果 |
 |---|---|---|
+| 審查 | reviewer | <審查結果摘要；有「🤖 審查結果」留言時附連結> |
 | CI | `gh pr checks --watch` | 見 PR 留言「🤖 CI 結果」 |
 
 ## 仍未處理
