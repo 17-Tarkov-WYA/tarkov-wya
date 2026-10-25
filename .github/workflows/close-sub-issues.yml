@@ -2,6 +2,7 @@ name: 關閉已合併的子 issue
 
 # GitHub 只在 PR 合併到預設分支（main）時自動關閉 `Closes #N` 的 issue。
 # 子 issue 的 PR 合併到目標的 dev 分支時，由這個工作流程補上關閉的動作。
+# 關閉時一併移除 status:* 標籤：issue 已關閉就代表完成，不再需要狀態標籤。
 
 on:
   pull_request:
@@ -49,4 +50,20 @@ jobs:
                 state_reason: "completed",
               });
               core.info(`已關閉 #${issue_number}`);
+
+              const statusLabels = issue.labels
+                .map((label) => (typeof label === "string" ? label : label.name))
+                .filter((name) => name && name.startsWith("status:"));
+              for (const name of statusLabels) {
+                try {
+                  await github.rest.issues.removeLabel({ ...context.repo, issue_number, name });
+                  core.info(`已移除 #${issue_number} 的 ${name}`);
+                } catch (error) {
+                  // 讀取 issue 之後標籤可能已被移除，這種情況不算失敗
+                  if (error.status !== 404) {
+                    throw error;
+                  }
+                  core.info(`#${issue_number} 已經沒有 ${name}，略過`);
+                }
+              }
             }
