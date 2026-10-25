@@ -27,7 +27,7 @@
 | 時機 | 移除 | 加上 |
 |---|---|---|
 | 開始開發（同時留言「🤖 開始開發（Claude）」） | `status:ready` 或 `status:changes-requested` | `status:in-progress` |
-| 開 PR（第一次），或修改後 push 並在 PR 留言「🤖 修改回報（Claude）」 | `status:in-progress` | `status:review` |
+| 開 PR（第一次），或修改後 push 並在 PR 留言「🤖 修改回報（Claude）」；**等 CI 結束**、留言「🤖 CI 結果（Claude）」與「🤖 完成條件確認（Claude）」之後 | `status:in-progress` | `status:review` |
 | 沒有上層目標、dev 分支不存在、依賴未完成、需要使用者決定、資訊不足 | 目前的狀態標籤 | `status:blocked`（附留言說明） |
 
 指令：`gh issue edit <編號> --repo 17-Tarkov-WYA/tarkov-wya --add-label <新標籤> --remove-label <舊標籤>`
@@ -56,15 +56,77 @@
 完整規則見 [`docs/workflow.md`](docs/workflow.md) 第 6 節。
 
 - **分支結構**：`main` ← 目標的 dev 分支 `dev/<目標編號>-<說明>`（使用者建立）← 子 issue 分支（你建立）
-- **你的分支**：`<類型>/<子 issue 編號>-<簡短英文說明>`，例如 `chore/2-solution`
+- **子 issue 分支**（你建立）：`<類型>/<子 issue 編號>-<簡短英文說明>`，例如 `chore/2-solution`
 - **要用哪個分支**：
-    - `status:ready`：從最新的 `origin/<目標的 dev 分支>` 開新分支
+    - `status:ready`：從最新的 `origin/<dev 分支>` 開新分支
     - `status:changes-requested`：沿用 issue 留言「🤖 開始開發（Claude）」記錄的分支，不開新分支
     - 不從 `main` 或其他子 issue 的分支開出；不自行 merge 或 rebase，有衝突時在回報中說明
 - **PR 的目標分支**一律是**目標的 dev 分支**（`--base dev/...`），**絕對不是 `main`**
-- **commit**：`<類型>(<範圍>): <繁體中文摘要> (#<issue 編號>)`，例如 `chore(repo): 建立 planner 空白專案 (#2)`
+- **commit 標題**：`<類型>(<範圍>): <繁體中文摘要> (#<issue 編號>)`，例如 `chore(repo): 建立 planner 空白專案 (#2)`
 - 類型：`feat`、`fix`、`exp`、`chore`、`refactor`、`docs`、`test`
 - 範圍：`planner`、`client`、`map`、`server`、`protocol`、`game-data`、`repo`、`docs`
+- **commit 的拆分：每個 commit 都要有針對性**（[`docs/decisions/0012`](docs/decisions/0012-traceable-development.md)；這是判斷的框架，不是固定分類）：
+    - 每個 commit 都應有一個明確的目的：只看該 commit 的變更與訊息，就能說明它做了什麼、為什麼做
+    - 不要將所有修改一股腦塞進同一個大雜燴 commit，也不要為了拆分而拆分，導致相關變更失去整體意義
+    - 類別相似、性質相同的變更可以聚合在同一個 commit；多條同類別的意見可以合併處理，「為什麼」完整列出每一條對應的來源
+    - 一條意見若涉及不同目的或性質的變更（例如同時涉及 UI 與 CI），可以依實際情況拆分為多個 commit
+    - 不要求一條意見對應一個 commit，也不要求每個 commit 僅對應一條意見
+    - 常見的分組方式（參考框架，不是必須遵守的一對一分類）：設定與建置（專案檔、相依套件、`.editorconfig`、CI、`.gitignore` 等）→ `chore`；程式邏輯 → `feat`／`fix`／`refactor`；UI（XAML、版面、UI 文字）→ 依情況用 `feat`／`fix`，摘要中寫出是 UI；驗證實驗的程式與紀錄 → `exp`；測試 → `test`；文件（README、`docs/`、`CLAUDE.md`、`.claude/` 中的說明）→ `docs`
+- **commit 規劃**：你依當次變更內容決定分組，在 reviewer 審查前提出完整的 commit 規劃。每個預計建立的 commit 列出：目的／標題、包含的檔案、分組理由（為什麼放在一起，必要時為什麼與其他變更拆開）、「為什麼」的來源、擬好的 commit 訊息
+    - 執行環境不支援 `git add -p`：同一次從工作目錄拆分建立 commit 時，以檔案為最小分組單位，同一個檔案不得分配給不同 commit（因逐一驗證失敗而新增修正 commit 時，不在此限）；規劃時考慮檔案間的依賴關係，避免產生無法獨立理解或驗證的分組
+    - commit 規劃是依實際變更提出的方案，不是固定藍圖；reviewer 可以要求調整分組、合併或拆分
+- **不規定先後順序**：順序依當下最適合的方式決定，但必須做到（[`docs/decisions/0012`](docs/decisions/0012-traceable-development.md)）：
+    - **每個 commit 單獨都能通過驗證**：建立 commit 之後，tester 逐一切到每個 commit（`git switch --detach <hash>`），執行格式檢查與受影響範圍的建置、測試並記錄結果，完成後切回子 issue 分支；失敗時見下方「逐一驗證失敗」
+    - **排序有理由**：commit 規劃寫出順序與為什麼這樣排，寫進開發回報的「## Commits」（退回修改寫進修改回報）
+    - **看得出頭尾**：每個 commit 內文加一行「順序：本輪第 k 個，基準 <hash>」。**每一次 push 就是一輪**：分支還沒 push 過時，基準是開分支時 dev 分支的 commit；之後的每一次 push（包含退回修改、CI 失敗後的修正），基準一律是 push 之前的 `origin/<子 issue 分支>`。回報與留言寫出範圍與 compare 連結（格式見「回報與 PR」）。commit 內文寫不了尾，尾以回報與留言為準
+- 依 commit 規劃用 `git add <檔案>` 分批 commit；不用 `git add -A` 或 `git add .`
+- 已建立的 commit 不改寫（不 `git commit --amend`、不 `git rebase`）
+- **先審查、再 commit**（[`docs/decisions/0012`](docs/decisions/0012-traceable-development.md)）：第一次開發、退回修改、CI 失敗後的修正，都是同一個流程：
+
+    實作 → tester 驗證工作目錄整體變更 → reviewer 審查工作目錄變更與 commit 規劃 → 依審查意見修正 → 審查通過後依規劃建立 commit → tester 逐一驗證每個 commit → push
+
+    - 審查前不得先為預計提交的變更建立 commit；審查通過後，才執行 `git commit`
+    - 審查後的修正直接併入工作目錄中相關的變更，並同步更新 commit 規劃，不另外為審查意見建立修正 commit
+    - 若有 M，修正後須再次交由 reviewer 審查；確認通過後才能依最終規劃建立 commit
+- **逐一驗證失敗**：tester 逐一驗證某個 commit 失敗時：
+    1. 留言記錄 tester 的驗證結果及失敗依據（已有 PR 留言到 PR，尚無 PR 留言到子 issue）
+    2. 在工作目錄進行修正，並擬定修正 commit 規劃（修正 commit 的「為什麼」引用 tester 驗證結果的留言連結與編號，並保留其他必要的可查證來源）
+    3. reviewer 只針對該修正內容與修正 commit 規劃進行增量審查（若有 M，依「Agent team」的「審查與驗證結果的紀錄」留言並修正）
+    4. 審查通過後，新增修正 commit，不修改原本已建立的 commit
+    5. tester 驗證新增的修正 commit，並確認最後一個 commit 通過；已標示失敗並由後續 commit 修正的歷史 commit，不阻擋通過
+    6. 完成驗證後才 push
+
+    「## Commits」中，原本驗證失敗的 commit（以及它之後、修正之前因同一個原因失敗的 commit）標示「❌（由 <修正 commit> 修正）」。修正 commit 也遵守「每個 commit 都要有針對性」，不恢復成「一條意見一個 commit」
+- **commit 內文必填**（內容先存成暫存檔，再用 `git commit -F <暫存檔>`）：
+
+    ```
+    <類型>(<範圍>): <繁體中文摘要> (#<issue 編號>)
+
+    改了什麼：
+    - <檔案或模組>：<變更>
+
+    為什麼：
+    - <來源（5 類之一，見下方「每一處變更都要有依據」）與原文>
+
+    順序：本輪第 <k> 個，基準 <hash>
+    ```
+
+- **每一處變更都要有依據，不可以推測**（[`docs/decisions/0012`](docs/decisions/0012-traceable-development.md)）：
+    - 每個 commit 的「為什麼」必須引用可以查證的來源，並寫出是哪一條。來源以「**事後打得開**」為標準，統一為 5 類：
+
+        | 來源 | 引用方式 |
+        |---|---|
+        | 子 issue、目標 issue | issue 編號＋欄位＋原文 |
+        | PR 留言（使用者意見） | 留言連結＋第幾條＋原文 |
+        | reviewer 審查結果 | 留言連結＋意見編號（M1、S1…）＋原文 |
+        | tester 驗證結果、CI 結果 | 留言連結（或開發回報的「## 驗證」）、CI run 連結 |
+        | repo 中的文件 | `路徑:行號 @ commit` |
+
+    - 對話內容、沒有留下紀錄的判斷，不能作為來源
+    - 超出意見字面的修改，「為什麼」要寫出依據；**沒有依據就不改，先詢問使用者**
+    - 不可以寫「應該是為了……」「推測是……」這類判斷
+
+- PR 由使用者以 **Create a merge commit** 合併，你拆好的 commit 會原樣留在歷史中
 
 ## 開發風格
 
@@ -94,10 +156,23 @@
 | 角色 | 負責 | 可以修改檔案 |
 |---|---|---|
 | `implementer` | 依 issue 撰寫程式、測試與文件 | 是 |
-| `tester` | 依完成條件與驗證方式實際執行並記錄結果 | 否 |
+| `tester` | 依完成條件與驗證方式實際執行並記錄結果；commit 之後逐一驗證每個 commit | 否 |
 | `reviewer` | 對照 issue、本檔案、開發風格與決策紀錄審查變更 | 否 |
 
-reviewer 提出「必須修正」時，交回 implementer，直到沒有必須修正的問題。
+reviewer 審查工作目錄的變更與 commit 規劃（見「分支與 commit」的「先審查、再 commit」），提出 M 時交回 implementer 修正，再次審查，直到沒有 M。逐一驗證失敗後的修正，reviewer 只做增量審查。
+
+reviewer 要確認：每一處變更都能對應到 commit 規劃中該 commit「為什麼」引用的來源。找不到依據的變更一律列為「必須修正」（移除，或列入「需要使用者決定的事」）。reviewer 回報中的每一個判斷都要附上依據（檔案:行號、來源原文）；無法從 5 類來源（見「分支與 commit」）確認的事，寫「無依據」並列入「需要使用者決定的事」。
+
+reviewer 評估 commit 規劃的重點：針對性、分組合理性、聚合與拆分、來源完整性、可執行性（以檔案為最小單位、檔案間的依賴）、訊息完整性；不得要求每條意見各自建立 commit，也不得僅以性質分類不同或目的不完全相同為由，直接要求拆分（詳見 [`.claude/agents/reviewer.md`](.claude/agents/reviewer.md)）。
+
+**審查與驗證結果的紀錄**（[`docs/decisions/0012`](docs/decisions/0012-traceable-development.md)）：
+
+- reviewer、tester 維持唯讀，不執行任何寫入 GitHub 的指令，也嚴禁使用 `gh api`；留言一律由你發布
+- reviewer 的每條意見加上編號：必須修正 M1、M2…，建議 S1、S2…；編號只在同一則審查留言內有效，引用時寫「留言連結＋編號」
+- 只要 reviewer 提出 M，就留下審查結果紀錄（已有 PR 留言到 PR，尚無 PR 留言到子 issue），保留 reviewer 發現的問題、依據與 M／S 編號
+- 修正併入原規劃的 commit 時，該 commit 的「為什麼」引用相關審查留言的連結與編號，並保留原本必要的來源依據
+- 沒有 M 的審查結果，摘要寫進開發回報或修改回報
+- 留言標題及格式依當次情境決定；子 issue 上的格式與 PR 上保持一致即可，不另訂固定標題
 
 ## 驗證方式
 
@@ -106,15 +181,20 @@ reviewer 提出「必須修正」時，交回 implementer，直到沒有必須�
 - **格式**：`editorconfig-checker`（所有語言；CI 的「格式檢查」會執行同樣的檢查）
 - **建置與測試**：受影響的 app／套件資料夾中 `CLAUDE.md` 所列的驗證指令
 - issue「驗證方式」欄位列出的項目
+- **每個 commit 單獨驗證**：commit 之後、push 之前，tester 逐一切到本輪的每個 commit，執行格式檢查與受影響範圍的建置、測試，記錄每個 commit 的結果（見「分支與 commit」）
+- **CI**：開 PR（或修改後 push）之後執行 `gh pr checks <PR 編號> --repo 17-Tarkov-WYA/tarkov-wya --watch`，等所有檢查結束；CI 還在執行時不能寫「通過」，也不能寫「之後另外留言」
 
 ## 回報與 PR
 
 回報寫在 **PR 的內容**中，使用者在 PR 頁面審核。所有回報都先存成**暫存檔**（不要放在 repo 中），再以 `--body-file` 傳入，並在對話中顯示同樣的內容。
 
+**commit 與 issue／PR 要能點擊**：所有回報與留言中，commit hash 與 issue／PR 編號**不加反引號、不放在程式碼區塊中**，直接寫（例如 0d9a4fa、#10），GitHub 會自動連結。hash 至少 7 碼，且必須是**已經 push** 的 commit。分支名稱、檔案路徑、指令維持反引號。
+
 | 情況 | 做什麼 |
 |---|---|
-| **第一次完成** | 開 PR **到目標的 dev 分支**：`gh pr create --repo 17-Tarkov-WYA/tarkov-wya --base <目標的 dev 分支> --head <你的分支> --title "<commit 格式的標題>" --body-file <回報>`，內容使用下方「開發回報」格式 |
+| **第一次完成** | 開 PR **到目標的 dev 分支**：`gh pr create --repo 17-Tarkov-WYA/tarkov-wya --base <dev 分支> --head <子 issue 分支> --title "<commit 格式的標題>" --body-file <回報>`，內容使用下方「開發回報」格式 |
 | **退回修改後完成** | 在原分支修改並 push（PR 會自動更新），再於 PR 留言「修改回報」：`gh pr comment <PR 編號> --repo 17-Tarkov-WYA/tarkov-wya --body-file <回報>` |
+| **以上兩種情況之後** | 依序：等 CI 結束 → 在 PR 留言「CI 結果」→ 在子 issue 留言「完成條件確認」→ 改為 `status:review`（格式見下方） |
 | **無法完成** | 不開 PR；在 issue 留言說明原因：`gh issue comment <編號> ...`，並改為 `status:blocked` |
 
 **開發回報**（PR 內容）：
@@ -122,20 +202,33 @@ reviewer 提出「必須修正」時，交回 implementer，直到沒有必須�
 ```markdown
 Closes #<子 issue 編號>
 
-上層目標：#<目標編號>（合併到 `<目標的 dev 分支>`）
+上層目標：#<目標編號>（合併到 `<dev 分支>`）
 
 🤖 開發回報（Claude）
 
 ## 完成條件
+issue 上另有「🤖 完成條件確認（Claude）」留言。
+
 - ✅ <條件>：<如何確認>
 - ❌ <條件>：<原因>
 
 ## 改了什麼
 - <檔案或模組>：<說明>
 
+## Commits
+範圍：基準 <hash> → 第一個 <hash> → 最後一個 <hash>（比較：https://github.com/17-Tarkov-WYA/tarkov-wya/compare/<基準>...<最後一個>）
+
+| 順序 | commit | 標題 | 為什麼 | 單獨驗證 |
+|---|---|---|---|---|
+| 1 | <hash> | <commit 標題> | <commit 內文「為什麼」的摘要> | ✅ 通過／❌（由 <修正 commit> 修正） |
+
+排序理由：<為什麼這樣排>
+
 ## 驗證
 | 項目 | 指令 | 結果 |
 |---|---|---|
+| 審查 | reviewer | <審查結果摘要；有審查結果留言時附連結> |
+| CI | `gh pr checks --watch` | 見 PR 留言「🤖 CI 結果」 |
 
 ## 偏離或未完成
 - <與 issue 不同的地方及理由；沒有就寫「無」>
@@ -144,7 +237,7 @@ Closes #<子 issue 編號>
 - <問題；沒有就寫「無」>
 
 ## 分支
-`<分支名稱>`（最後 commit：`<hash>`）
+`<子 issue 分支>`（最後 commit：<hash>）
 ```
 
 **修改回報**（PR 留言）：
@@ -156,21 +249,84 @@ Closes #<子 issue 編號>
 - <使用者在 PR 上提出的每一項要求>
 
 ## 改了什麼
-- <對應每一項要求的修改>
+- <對應每一項要求的修改>（commit <hash>）
+
+## Commits
+範圍：基準 <hash> → 第一個 <hash> → 最後一個 <hash>（比較：https://github.com/17-Tarkov-WYA/tarkov-wya/compare/<基準>...<最後一個>）
+
+| 順序 | commit | 標題 | 為什麼 | 單獨驗證 |
+|---|---|---|---|---|
+| 1 | <hash> | <commit 標題> | <commit 內文「為什麼」的摘要> | ✅ 通過／❌（由 <修正 commit> 修正） |
+
+排序理由：<為什麼這樣排>
 
 ## 驗證
 | 項目 | 指令 | 結果 |
 |---|---|---|
+| 審查 | reviewer | <審查結果摘要；有審查結果留言時附連結> |
+| CI | `gh pr checks --watch` | 見 PR 留言「🤖 CI 結果」 |
 
 ## 仍未處理
 - <沒有處理的要求及理由；沒有就寫「無」>
+```
+
+**CI 結果**（PR 留言）：開 PR 或修改後 push 之後，執行 `gh pr checks <PR 編號> --repo 17-Tarkov-WYA/tarkov-wya --watch` 等所有檢查結束，再留言：
+
+```markdown
+🤖 CI 結果（Claude）
+
+最後 commit：<hash>
+
+範圍：基準 <hash> → 第一個 <hash> → 最後一個 <hash>（比較：https://github.com/17-Tarkov-WYA/tarkov-wya/compare/<基準>...<最後一個>）
+
+| 檢查 | 結果 |
+|---|---|
+| <檢查名稱> | ✅ 通過／❌ 失敗 |
+
+<失敗時：失敗原因與修正方式；通過時省略>
+```
+
+- 失敗時：留言失敗原因與修正方式；修正依「分支與 commit」的「先審查、再 commit」進行（這是新的一輪），push 後重新等待，再留一則新的結果
+- 無法修正時（需要使用者決定、資訊不足）：在 PR 留言「🤖 CI 結果（Claude）」說明原因，在子 issue 留言並改為 `status:blocked`；子 issue 的留言要註明「已有 PR，處理後請改為 `status:changes-requested`」（沿用既有分支與 PR，不要改回 `status:ready`）
+- 全部通過後才進行下一步，所以「完成條件確認」中的 CI 一律是「通過」
+
+**審查結果、逐一驗證結果**（留言時機見「Agent team」的「審查與驗證結果的紀錄」與「分支與 commit」的「逐一驗證失敗」）：
+
+- 標題及格式依當次情境決定；子 issue 上的格式與 PR 上保持一致即可，不另訂固定標題
+- 審查結果要保留 reviewer 發現的問題、依據與 M／S 編號
+- 逐一驗證結果要保留 tester 的驗證結果及失敗依據
+
+**完成條件確認**（子 issue 留言）：
+
+- 時機：CI 結束之後、改為 `status:review` 之前；退回修改後完成時，**另外再留一則新的**，不編輯舊留言
+- 逐條**原文引用**子 issue「完成條件」的每一項，順序與原文相同，**不可省略、改寫或合併**
+- 每一條標示：
+    - ✅ 已完成：寫出如何確認（執行的指令與結果、檔案位置）
+    - ❌ 未完成：寫出原因
+    - 👤 需要使用者確認：你無法驗證的項目（例如需要看畫面），寫出確認方法
+- 指令：`gh issue comment <編號> --repo 17-Tarkov-WYA/tarkov-wya --body-file <暫存檔>`
+- **不修改 issue 內容**（不在 issue 的完成條件上打勾）；**不修改目標 issue**，也不在目標 issue 留言
+- 這則留言代表「你已自行驗證」，不代表使用者已驗收；合併 PR 才是使用者的審核結果
+
+```markdown
+🤖 完成條件確認（Claude）
+
+PR：#<PR 編號>（合併到 `<dev 分支>`）　最後 commit：<hash>　CI：通過
+
+範圍：基準 <hash> → 第一個 <hash> → 最後一個 <hash>（比較：https://github.com/17-Tarkov-WYA/tarkov-wya/compare/<基準>...<最後一個>）
+
+- ✅ <完成條件原文>：<如何確認>
+- ❌ <完成條件原文>：<原因>
+- 👤 <完成條件原文>：<請使用者如何確認>
+
+結果：<n> 項完成、<n> 項未完成、<n> 項需要使用者確認
 ```
 
 ## 權限與安全
 
 - GitHub 權限來自環境變數 `GH_TOKEN`：**issue 與 PR 的讀寫**，**沒有**程式碼內容（Contents）的權限，所以技術上無法合併 PR
 - 可以使用的 gh 指令：
-    - issue：`gh issue view`、`gh issue list`、`gh issue comment`，以及 `gh issue edit` **只用於增減 `status:*` 標籤**
+    - issue：`gh issue view`、`gh issue list`、`gh issue comment`，以及 `gh issue edit` **只用於增減 `status:*` 標籤**（完成條件的確認一律用留言，不編輯 issue 內容）
     - PR：`gh pr create`、`gh pr view`、`gh pr list`、`gh pr diff`、`gh pr checks`、`gh pr comment`
 - 可以 push **自己的子 issue 分支**（使用既有的 SSH 金鑰）
 - **禁止**：push 或 commit 到 `main` 或任何 `dev/*` 分支、開 PR 到 `main`、force push、merge、rebase、**合併／關閉／核准 PR**（`gh pr merge`、`gh pr close`、`gh pr review`）、關閉 issue、修改 issue 的標題／內容／其他標籤／指派／milestone、修改目標 issue、使用 `gh api`

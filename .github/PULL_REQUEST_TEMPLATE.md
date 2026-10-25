@@ -15,8 +15,8 @@ Closes #
 ## 檢查清單
 
 - [ ] 分支名稱為 `<類型>/<issue 編號>-<簡短英文說明>`（見 `docs/workflow.md`）
-- [ ] commit 訊息為 `<類型>(<範圍>): <繁體中文摘要> (#<issue 編號>)`
-- [ ] issue 上有「🤖 開發回報（Claude）」，完成條件皆為 ✅（由 Claude 開發時）
+- [ ] commit 標題為 `<類型>(<範圍>): <繁體中文摘要> (#<issue 編號>)`，內文必填（改了什麼／為什麼），每個 commit 都有明確的目的（見 `docs/decisions/0012-traceable-development.md`）
+- [ ] PR 內容為「🤖 開發回報（Claude）」，子 issue 上有「🤖 完成條件確認（Claude）」留言（由 Claude 開發時）
 - [ ] 符合 `docs/coding-style/` 中通用規則與所涉及語言的開發風格
 - [ ] 格式檢查通過
 - [ ] 建置與測試通過（有程式碼變更時）
