@@ -18,13 +18,16 @@ body:
   - type: dropdown
     id: kind
     attributes:
-      label: 類型
+      label: 工作性質
+      description: 補充 type:* label，說明這項工作的細部方向；Claude 依此選擇分支與 commit 的類型。
       options:
-        - 專案骨架與設定
-        - CI／自動化
-        - 重構
-        - 文件
-        - 其他
+        - 建置與設定（chore）
+        - CI／自動化（chore）
+        - 相依套件（chore）
+        - 測試（test）
+        - 重構（refactor）
+        - 文件（docs）
+        - 其他（chore）
     validations:
       required: true
   - type: dropdown
