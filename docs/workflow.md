@@ -82,7 +82,7 @@ stateDiagram-v2
 | `status:changes-requested` | 使用者退回，需要修改 | 使用者 | **是**（在原分支上修改） |
 | `status:blocked` | 依賴未完成或需要使用者決定（附留言說明） | 任一方 | 否 |
 | `status:paused` | 暫停中的範圍（例如 map、server） | 使用者 | 否 |
-| issue 已關閉 | 完成（PR 已合併到 dev 分支） | 自動 | — |
+| issue 已關閉 | 完成（PR 已合併到 dev 分支）；關閉時自動移除 `status:*` 標籤 | 自動 | — |
 
 **Claude 可以接手的 issue**：開啟中、不是目標 issue、帶有 `status:ready` 或 `status:changes-requested`、**有上層目標且目標的 dev 分支已存在**、「依賴」中的 issue 都已關閉。在 Claude Code 中用 `/next-issue` 可以列出目前可接手的 issue。
 
@@ -268,7 +268,7 @@ fix(planner): 修正手動修正後進度被 log 覆蓋 (#21)
 
 ### 子 issue 的自動關閉
 
-GitHub 只在 PR 合併到**預設分支（`main`）**時，才會自動關閉 `Closes #N` 的 issue。子 issue 的 PR 合併到 dev 分支時，由工作流程 [`close-sub-issues.yml`](../.github/workflows/close-sub-issues.yml) 自動關閉 PR 內容中 `Closes #N` 的 issue，並留言註明合併到哪個分支。
+GitHub 只在 PR 合併到**預設分支（`main`）**時，才會自動關閉 `Closes #N` 的 issue。子 issue 的 PR 合併到 dev 分支時，由工作流程 [`close-sub-issues.yml`](../.github/workflows/close-sub-issues.yml) 自動關閉 PR 內容中 `Closes #N` 的 issue，並留言註明合併到哪個分支。關閉時會一併移除該 issue 所有 `status:*` 標籤，其他標籤保留；已經關閉、或沒有 `status:*` 標籤的 issue 不受影響。
 
 ## 7. 開發與回報（Claude）
 
